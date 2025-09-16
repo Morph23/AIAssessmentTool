@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 
-const repoName = 'AIAssessmentTool';
 const nextConfig = {
   output: 'export',
-  assetPrefix: `/${repoName}/`,
-  basePath: `/${repoName}`,
+  assetPrefix: "/AIAssessmentTool/",
+  basePath: "/AIAssessmentTool",
+  reactStrictMode: true,
 };
 
 module.exports = nextConfig;
