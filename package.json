@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
+  "start": "next start"
+    
   },
   "keywords": [
     "AI",
@@ -24,9 +23,8 @@
     "react-dom": "latest"
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
   },
-  "homepage": "https://Morph23.github.io/AIAssessmentTool",
+
   "next": {
     "output": "export"
   },
