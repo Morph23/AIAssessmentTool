@@ -1,27 +1,28 @@
 
 
+
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, 'Inter', sans-serif;
-  background: linear-gradient(135deg, #eaf1fb 0%, #f7faff 100%);
+  background: #f7fafd;
   min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
-.assessment-theme-bg {
+.assessment-bg {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #eaf1fb 0%, #f7faff 100%);
+  background: #f7fafd;
 }
 
-.assessment-container {
-  max-width: 480px;
+.assessment-card {
+  max-width: 540px;
   width: 100%;
   margin: 40px auto;
   background: #fff;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 6px 32px rgba(33, 134, 247, 0.10), 0 1.5px 6px rgba(44, 62, 80, 0.06);
   padding: 38px 32px 32px 32px;
   display: flex;
@@ -29,6 +30,7 @@ body {
   align-items: stretch;
   border: 1.5px solid #e3eaf7;
 }
+
 
 .assessment-title {
   text-align: center;
@@ -39,11 +41,12 @@ body {
   margin-top: 0;
   line-height: 1.2;
   letter-spacing: -1px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'Inter', sans-serif;
 }
 
 .assessment-subtitle {
   text-align: center;
-  color: #2186f7;
+  color: #6b7280;
   font-size: 1.1rem;
   margin-bottom: 18px;
   font-weight: 500;
@@ -61,7 +64,7 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #2186f7;
+  color: #222;
 }
 .assessment-welcome p {
   color: #444;
@@ -69,6 +72,7 @@ body {
   margin-bottom: 1.5rem;
   font-size: 1.05rem;
 }
+
 .assessment-form {
   display: flex;
   flex-direction: column;
@@ -85,6 +89,7 @@ body {
   margin-bottom: 2px;
   font-size: 1.04rem;
   letter-spacing: -0.5px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'Inter', sans-serif;
 }
 .assessment-field select {
   padding: 11px 12px;

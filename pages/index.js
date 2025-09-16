@@ -1,5 +1,6 @@
 
 
+
 import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -12,7 +13,6 @@ export default function Home() {
     aiKnowledge: ''
   });
   const router = useRouter();
-
   const isComplete = form.position && form.experience && form.subject && form.aiKnowledge;
 
   const handleChange = (e) => {
@@ -22,7 +22,7 @@ export default function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isComplete) {
-      router.push('/next'); // Placeholder for next page
+      router.push('/next');
     }
   };
 
@@ -33,8 +33,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Helvetica:wght@400;700&display=swap" rel="stylesheet" />
       </Head>
-      <div className="assessment-theme-bg">
-        <div className="assessment-container">
+      <div className="assessment-bg">
+        <div className="assessment-card">
           <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
           <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.<br />
             <span className="assessment-site">AI4SchoolsHub.com</span>
@@ -73,7 +73,11 @@ export default function Home() {
                 <option value="1">Option 1</option>
               </select>
             </div>
-            <button type="submit" className="assessment-btn" disabled={!isComplete} style={{ opacity: isComplete ? 1 : 0.6, cursor: isComplete ? 'pointer' : 'not-allowed' }}>
+            <button
+              type="submit"
+              className="assessment-btn"
+              disabled={!isComplete}
+            >
               Start AI Teacher Assessment
             </button>
           </form>
