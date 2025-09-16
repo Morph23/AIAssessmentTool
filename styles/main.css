@@ -1,0 +1,51 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 32px;
+}
+h1 {
+  text-align: center;
+  color: #2c3e50;
+}
+.customization-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.customization-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #34495e;
+}
+.customization-form input,
+.customization-form select,
+.customization-form textarea {
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.customization-form button {
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.customization-form button:hover {
+  background: #005bb5;
+}

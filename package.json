@@ -4,10 +4,11 @@
   "description": "A website for AI assessment customization guidance.",
   "main": "src/App.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out"
   },
   "keywords": [
     "AI",
@@ -18,14 +19,31 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
-  "devDependencies": {},
-  "homepage": "https://ai4schoolshub.com",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  },
+  "homepage": "https://Morph23.github.io/AIAssessmentTool",
+  "next": {
+    "output": "export"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/ai-assessment-customization-guide.git"
+    "url": "https://github.com/Morph23/AIAssessmentTool.git"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

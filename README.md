@@ -1,7 +1,8 @@
-# AI Assessment Customization Guide
+ai-assessment-customization-guide
+# AI Assessment Customization Guide (Next.js)
 
 ## Overview
-The AI Assessment Customization Guide is a web application designed to provide educators and administrators with resources and tools for customizing AI assessments in educational settings. This project aims to streamline the process of adapting AI assessments to meet the unique needs of different schools and students.
+This project has been migrated from Create React App to **Next.js** for full compatibility with Node.js 20+ and static export for GitHub Pages deployment.
 
 ## Features
 - User-friendly interface for navigating AI assessment resources.
@@ -9,35 +10,43 @@ The AI Assessment Customization Guide is a web application designed to provide e
 - Responsive design for accessibility on various devices.
 - Modular components for easy maintenance and updates.
 
-## Project Structure
+## Project Structure (Next.js)
 ```
-ai-assessment-customization-guide
-├── public
-│   └── index.html
-├── src
-│   ├── assets
-│   ├── components
-│   │   └── Header.js
-│   ├── pages
-│   │   └── Home.js
-│   ├── styles
-│   │   └── main.css
-│   └── App.js
+AIAssessmentTool
+├── pages
+│   └── index.js
+├── styles
+│   └── main.css
 ├── package.json
 └── README.md
 ```
 
-## Installation
+## Installation & Deployment
 To get started with the project, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/ai-assessment-customization-guide.git
+   git clone https://github.com/Morph23/AIAssessmentTool.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd ai-assessment-customization-guide
+   cd AIAssessmentTool
+   ```
+
+3. Install dependencies:
+   ```
+   npm install
+   ```
+
+4. Build and deploy to GitHub Pages:
+   ```
+   npm run deploy
+   ```
+
+## Notes
+- The old `src/` and `public/` folders are now obsolete and can be removed.
+- All main code is now in the `pages/` and `styles/` folders.
    ```
 
 3. Install the dependencies:
