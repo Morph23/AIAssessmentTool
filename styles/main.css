@@ -1,51 +1,102 @@
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', Arial, sans-serif;
   background: #f7f7f7;
   margin: 0;
   padding: 0;
 }
-.container {
+
+.assessment-container {
   max-width: 600px;
-  margin: 40px auto;
+  margin: 32px auto;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.08);
+  padding: 36px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
-h1 {
+
+.assessment-title {
   text-align: center;
-  color: #2c3e50;
+  color: #2186f7;
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  line-height: 1.2;
 }
-.customization-form {
+
+.assessment-subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+}
+.assessment-site {
+  color: #b0b0b0;
+  font-size: 0.98rem;
+}
+.assessment-divider {
+  border: none;
+  border-top: 4px solid #e5e7eb;
+  margin: 18px 0 18px 0;
+}
+.assessment-welcome h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #222;
+}
+.assessment-welcome p {
+  color: #444;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+.assessment-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
-.customization-form label {
+.assessment-field {
   display: flex;
   flex-direction: column;
-  font-weight: 500;
-  color: #34495e;
+  gap: 6px;
 }
-.customization-form input,
-.customization-form select,
-.customization-form textarea {
-  margin-top: 6px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.assessment-field label {
+  font-weight: 700;
+  color: #2186f7;
+  margin-bottom: 2px;
+  font-size: 1.04rem;
+}
+.assessment-field select {
+  padding: 10px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 6px;
   font-size: 1rem;
+  background: #fafbfc;
+  color: #222;
+  transition: border 0.2s;
 }
-.customization-form button {
-  background: #0070f3;
+.assessment-field select:focus {
+  border-color: #2186f7;
+  outline: none;
+}
+.assessment-btn {
+  background: #2186f7;
   color: #fff;
   border: none;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 13px 0;
+  border-radius: 6px;
+  font-size: 1.08rem;
+  font-weight: 700;
   cursor: pointer;
+  margin-top: 10px;
   transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(33,134,247,0.08);
 }
-.customization-form button:hover {
-  background: #005bb5;
+.assessment-btn:hover {
+  background: #1761b0;
 }

@@ -1,36 +1,53 @@
+
 import Head from 'next/head';
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>AI Assessment Customization Guide</title>
+        <title>Personalised AI Teacher Assessment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div className="container">
-        <h1>AI Assessment Customization Guide</h1>
-        <form className="customization-form">
-          <label>
-            Name:
-            <input type="text" name="name" />
-          </label>
-          <label>
-            Email:
-            <input type="email" name="email" />
-          </label>
-          <label>
-            Assessment Type:
-            <select name="assessmentType">
-              <option value="quiz">Quiz</option>
-              <option value="project">Project</option>
-              <option value="presentation">Presentation</option>
+      <div className="assessment-container">
+        <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
+        <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.<br />
+          <span className="assessment-site">AI4SchoolsHub.com</span>
+        </p>
+        <hr className="assessment-divider" />
+        <div className="assessment-welcome">
+          <h2>Welcome!</h2>
+          <p>This assessment evaluates your AI readiness in teaching, providing a personalized development plan. Please tell us about your teaching background to customize your analysis.</p>
+        </div>
+        <form className="assessment-form">
+          <div className="assessment-field">
+            <label htmlFor="position">Teaching Position</label>
+            <select id="position" name="position" defaultValue="">
+              <option value="" disabled>Select your position...</option>
+              <option value="1">Option 1</option>
             </select>
-          </label>
-          <label>
-            Customization Details:
-            <textarea name="details" rows="4" />
-          </label>
-          <button type="submit">Submit</button>
+          </div>
+          <div className="assessment-field">
+            <label htmlFor="experience">Teaching Experience</label>
+            <select id="experience" name="experience" defaultValue="">
+              <option value="" disabled>Select experience...</option>
+              <option value="1">Option 1</option>
+            </select>
+          </div>
+          <div className="assessment-field">
+            <label htmlFor="subject">Subject Area</label>
+            <select id="subject" name="subject" defaultValue="">
+              <option value="" disabled>Select subject area...</option>
+              <option value="1">Option 1</option>
+            </select>
+          </div>
+          <div className="assessment-field">
+            <label htmlFor="ai-knowledge">Current AI Knowledge</label>
+            <select id="ai-knowledge" name="ai-knowledge" defaultValue="">
+              <option value="" disabled>Select your current AI knowledge level...</option>
+              <option value="1">Option 1</option>
+            </select>
+          </div>
+          <button type="submit" className="assessment-btn">Start AI Teacher Assessment</button>
         </form>
       </div>
     </>
