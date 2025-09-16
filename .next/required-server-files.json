@@ -13,7 +13,7 @@
     "typedRoutes": false,
     "distDir": ".next",
     "cleanDistDir": true,
-    "assetPrefix": "",
+    "assetPrefix": "/AIAssessmentTool/",
     "cacheMaxMemorySize": 52428800,
     "configOrigin": "next.config.js",
     "useFileSystemPublicRoutes": true,
@@ -47,7 +47,7 @@
         256,
         384
       ],
-      "path": "/_next/image",
+      "path": "/AIAssessmentTool/_next/image",
       "loader": "default",
       "loaderFile": "",
       "domains": [],
@@ -70,9 +70,9 @@
       "pagesBufferLength": 5
     },
     "amp": {
-      "canonicalBase": ""
+      "canonicalBase": "/AIAssessmentTool"
     },
-    "basePath": "",
+    "basePath": "/AIAssessmentTool",
     "sassOptions": {},
     "trailingSlash": false,
     "i18n": null,

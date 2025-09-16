@@ -2,8 +2,16 @@
   "version": 3,
   "pages404": true,
   "caseSensitive": false,
-  "basePath": "",
+  "basePath": "/AIAssessmentTool",
   "redirects": [
+    {
+      "source": "/AIAssessmentTool/",
+      "destination": "/AIAssessmentTool",
+      "basePath": false,
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^/AIAssessmentTool/$"
+    },
     {
       "source": "/:path+/",
       "destination": "/:path+",
@@ -14,7 +22,13 @@
   ],
   "headers": [],
   "rewrites": {
-    "beforeFiles": [],
+    "beforeFiles": [
+      {
+        "source": "/AIAssessmentTool//_next/:path+",
+        "destination": "/AIAssessmentTool/_next/:path+",
+        "regex": "^/AIAssessmentTool//_next(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))(?:/)?$"
+      }
+    ],
     "afterFiles": [],
     "fallback": []
   },
