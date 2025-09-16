@@ -1,0 +1,31 @@
+{
+  "name": "ai-assessment-customization-guide",
+  "version": "1.0.0",
+  "description": "A website for AI assessment customization guidance.",
+  "main": "src/App.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [
+    "AI",
+    "assessment",
+    "customization",
+    "education"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3"
+  },
+  "devDependencies": {},
+  "homepage": "https://ai4schoolshub.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-assessment-customization-guide.git"
+  }
+}
