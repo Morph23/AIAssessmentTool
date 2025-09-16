@@ -1,54 +1,83 @@
 
+
 import Head from 'next/head';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Home() {
+  const [form, setForm] = useState({
+    position: '',
+    experience: '',
+    subject: '',
+    aiKnowledge: ''
+  });
+  const router = useRouter();
+
+  const isComplete = form.position && form.experience && form.subject && form.aiKnowledge;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isComplete) {
+      router.push('/next'); // Placeholder for next page
+    }
+  };
+
   return (
     <>
       <Head>
         <title>Personalised AI Teacher Assessment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Helvetica:wght@400;700&display=swap" rel="stylesheet" />
       </Head>
-      <div className="assessment-container">
-        <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
-        <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.<br />
-          <span className="assessment-site">AI4SchoolsHub.com</span>
-        </p>
-        <hr className="assessment-divider" />
-        <div className="assessment-welcome">
-          <h2>Welcome!</h2>
-          <p>This assessment evaluates your AI readiness in teaching, providing a personalized development plan. Please tell us about your teaching background to customize your analysis.</p>
+      <div className="assessment-theme-bg">
+        <div className="assessment-container">
+          <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
+          <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.<br />
+            <span className="assessment-site">AI4SchoolsHub.com</span>
+          </p>
+          <hr className="assessment-divider" />
+          <div className="assessment-welcome">
+            <h2>Welcome!</h2>
+            <p>This assessment evaluates your AI readiness in teaching, providing a personalized development plan. Please tell us about your teaching background to customize your analysis.</p>
+          </div>
+          <form className="assessment-form" onSubmit={handleSubmit} autoComplete="off">
+            <div className="assessment-field">
+              <label htmlFor="position">Teaching Position</label>
+              <select id="position" name="position" value={form.position} onChange={handleChange} required>
+                <option value="" disabled>Select your position...</option>
+                <option value="1">Option 1</option>
+              </select>
+            </div>
+            <div className="assessment-field">
+              <label htmlFor="experience">Teaching Experience</label>
+              <select id="experience" name="experience" value={form.experience} onChange={handleChange} required>
+                <option value="" disabled>Select experience...</option>
+                <option value="1">Option 1</option>
+              </select>
+            </div>
+            <div className="assessment-field">
+              <label htmlFor="subject">Subject Area</label>
+              <select id="subject" name="subject" value={form.subject} onChange={handleChange} required>
+                <option value="" disabled>Select subject area...</option>
+                <option value="1">Option 1</option>
+              </select>
+            </div>
+            <div className="assessment-field">
+              <label htmlFor="aiKnowledge">Current AI Knowledge</label>
+              <select id="aiKnowledge" name="aiKnowledge" value={form.aiKnowledge} onChange={handleChange} required>
+                <option value="" disabled>Select your current AI knowledge level...</option>
+                <option value="1">Option 1</option>
+              </select>
+            </div>
+            <button type="submit" className="assessment-btn" disabled={!isComplete} style={{ opacity: isComplete ? 1 : 0.6, cursor: isComplete ? 'pointer' : 'not-allowed' }}>
+              Start AI Teacher Assessment
+            </button>
+          </form>
         </div>
-        <form className="assessment-form">
-          <div className="assessment-field">
-            <label htmlFor="position">Teaching Position</label>
-            <select id="position" name="position" defaultValue="">
-              <option value="" disabled>Select your position...</option>
-              <option value="1">Option 1</option>
-            </select>
-          </div>
-          <div className="assessment-field">
-            <label htmlFor="experience">Teaching Experience</label>
-            <select id="experience" name="experience" defaultValue="">
-              <option value="" disabled>Select experience...</option>
-              <option value="1">Option 1</option>
-            </select>
-          </div>
-          <div className="assessment-field">
-            <label htmlFor="subject">Subject Area</label>
-            <select id="subject" name="subject" defaultValue="">
-              <option value="" disabled>Select subject area...</option>
-              <option value="1">Option 1</option>
-            </select>
-          </div>
-          <div className="assessment-field">
-            <label htmlFor="ai-knowledge">Current AI Knowledge</label>
-            <select id="ai-knowledge" name="ai-knowledge" defaultValue="">
-              <option value="" disabled>Select your current AI knowledge level...</option>
-              <option value="1">Option 1</option>
-            </select>
-          </div>
-          <button type="submit" className="assessment-btn">Start AI Teacher Assessment</button>
-        </form>
       </div>
     </>
   );

@@ -25,6 +25,12 @@
       "regex": "^/(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/next",
+      "regex": "^/next(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/next(?:/)?$"
     }
   ],
   "dataRoutes": [],

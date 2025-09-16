@@ -1,21 +1,33 @@
 
+
 body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: #f7f7f7;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'Inter', sans-serif;
+  background: linear-gradient(135deg, #eaf1fb 0%, #f7faff 100%);
+  min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
+.assessment-theme-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eaf1fb 0%, #f7faff 100%);
+}
+
 .assessment-container {
-  max-width: 600px;
-  margin: 32px auto;
+  max-width: 480px;
+  width: 100%;
+  margin: 40px auto;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.08);
-  padding: 36px 32px 32px 32px;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px rgba(33, 134, 247, 0.10), 0 1.5px 6px rgba(44, 62, 80, 0.06);
+  padding: 38px 32px 32px 32px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  border: 1.5px solid #e3eaf7;
 }
 
 .assessment-title {
@@ -26,13 +38,15 @@ body {
   margin-bottom: 0.5rem;
   margin-top: 0;
   line-height: 1.2;
+  letter-spacing: -1px;
 }
 
 .assessment-subtitle {
   text-align: center;
-  color: #6b7280;
+  color: #2186f7;
   font-size: 1.1rem;
   margin-bottom: 18px;
+  font-weight: 500;
 }
 .assessment-site {
   color: #b0b0b0;
@@ -40,14 +54,14 @@ body {
 }
 .assessment-divider {
   border: none;
-  border-top: 4px solid #e5e7eb;
+  border-top: 3px solid #e5e7eb;
   margin: 18px 0 18px 0;
 }
 .assessment-welcome h2 {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #222;
+  color: #2186f7;
 }
 .assessment-welcome p {
   color: #444;
@@ -70,15 +84,17 @@ body {
   color: #2186f7;
   margin-bottom: 2px;
   font-size: 1.04rem;
+  letter-spacing: -0.5px;
 }
 .assessment-field select {
-  padding: 10px 12px;
+  padding: 11px 12px;
   border: 1.5px solid #e5e7eb;
-  border-radius: 6px;
+  border-radius: 7px;
   font-size: 1rem;
-  background: #fafbfc;
+  background: #fafdff;
   color: #222;
   transition: border 0.2s;
+  font-family: inherit;
 }
 .assessment-field select:focus {
   border-color: #2186f7;
@@ -88,15 +104,22 @@ body {
   background: #2186f7;
   color: #fff;
   border: none;
-  padding: 13px 0;
-  border-radius: 6px;
+  padding: 14px 0;
+  border-radius: 7px;
   font-size: 1.08rem;
   font-weight: 700;
   cursor: pointer;
   margin-top: 10px;
-  transition: background 0.2s;
+  transition: background 0.2s, opacity 0.2s;
   box-shadow: 0 2px 8px rgba(33,134,247,0.08);
+  opacity: 1;
 }
-.assessment-btn:hover {
+.assessment-btn:disabled {
+  background: #b3d3fa;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.assessment-btn:hover:not(:disabled) {
   background: #1761b0;
 }
