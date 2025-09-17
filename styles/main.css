@@ -1,3 +1,104 @@
+/* Progress Bar */
+.assessment-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #222;
+  border-radius: 6px;
+  margin: 18px 0 28px 0;
+  overflow: hidden;
+}
+.assessment-progress {
+  height: 100%;
+  background: #18ab4b;
+  border-radius: 6px;
+  transition: width 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+/* Question Title & Prompt */
+.assessment-question-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  text-align: left;
+}
+.assessment-question-prompt {
+  color: #e0e0e0;
+  font-size: 1.08rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+/* Options */
+.assessment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 2.2rem;
+}
+.assessment-option {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid transparent;
+  border-radius: 9px;
+  padding: 18px 18px 12px 18px;
+  text-align: left;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border 0.2s, background 0.2s, color 0.2s;
+  box-shadow: 0 1.5px 6px rgba(44,62,80,0.06);
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.assessment-option.selected {
+  border: 2px solid #18ab4b;
+  background: #18ab4b;
+  color: #fff;
+}
+.assessment-option-label {
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.assessment-option-desc {
+  font-size: 0.98rem;
+  font-weight: 400;
+  color: #e0e0e0;
+}
+
+/* Navigation Row */
+.assessment-nav-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+.assessment-nav-btn {
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 7px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+  opacity: 1;
+}
+.assessment-nav-btn.primary {
+  background: #18ab4b;
+  color: #fff;
+}
+.assessment-nav-btn:disabled {
+  background: #b3ffd6;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 @font-face {
   font-family: 'TodaySB Regular';
   src: url('/TodaySB-Regular.otf') format('opentype');
