@@ -40,7 +40,7 @@ export default function Home() {
         <div className="assessment-card">
           <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
           <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.</p>
-          <hr className="assessment-divider" />
+
           <div className="assessment-welcome">
             <h2 className="assessment-welcome-title">Welcome!</h2>
             <p className="assessment-welcome-para">This assessment evaluates your AI readiness in teaching, providing a personalized development plan. Please tell us about your teaching background to customize your analysis.</p>

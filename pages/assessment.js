@@ -321,14 +321,18 @@ export default function Assessment() {
             ))}
           </div>
           <div className="assessment-nav-row">
-            {current > 0 && (
-              <button className="assessment-nav-btn" type="button" onClick={handlePrev}>Previous</button>
-            )}
-            {current < QUESTIONS.length - 1 ? (
-              <button className="assessment-nav-btn primary" type="button" onClick={handleNext} disabled={!selected}>Next</button>
-            ) : (
-              <button className="assessment-nav-btn primary" type="button" onClick={() => router.push('/results')} disabled={!selected}>Show Results</button>
-            )}
+            <div style={{ flex: 1 }}>
+              {current > 0 && (
+                <button className="assessment-nav-btn" type="button" onClick={handlePrev}>Previous</button>
+              )}
+            </div>
+            <div>
+              {current < QUESTIONS.length - 1 ? (
+                <button className="assessment-nav-btn primary" type="button" onClick={handleNext} disabled={!selected}>Next</button>
+              ) : (
+                <button className="assessment-nav-btn primary" type="button" onClick={() => router.push('/results')} disabled={!selected}>Show Results</button>
+              )}
+            </div>
           </div>
         </div>
       </div>
