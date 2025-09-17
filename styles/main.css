@@ -57,7 +57,7 @@ body {
 
 .assessment-title {
   text-align: center;
-  color: #7cffb2;
+  color: #18ab4b;
   font-size: 2.3rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
@@ -87,7 +87,7 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #7cffb2;
+  color: #18ab4b;
   text-align: center;
 }
 .assessment-welcome-para {
@@ -116,7 +116,7 @@ body {
 }
 .assessment-field label {
   font-weight: 700;
-  color: #7cffb2;
+  color: #18ab4b;
   margin-bottom: 2px;
   font-size: 1.04rem;
   letter-spacing: -0.5px;
@@ -137,8 +137,8 @@ body {
   outline: none;
 }
 .assessment-btn {
-  background: linear-gradient(90deg, #7cffb2 0%, #2bb673 100%);
-  color: #000;
+  background: linear-gradient(90deg, #18ab4b 0%, #18ab4b 100%);
+  color: #fff;
   border: none;
   padding: 14px 0;
   border-radius: 7px;
@@ -147,7 +147,7 @@ body {
   cursor: pointer;
   margin-top: 10px;
   transition: background 0.2s, opacity 0.2s;
-  box-shadow: 0 2px 8px rgba(44,255,178,0.08);
+  box-shadow: 0 2px 8px rgba(24,171,75,0.08);
   opacity: 1;
 }
 .assessment-btn:disabled {
@@ -157,5 +157,5 @@ body {
   opacity: 0.7;
 }
 .assessment-btn:hover:not(:disabled) {
-  background: linear-gradient(90deg, #2bb673 0%, #7cffb2 100%);
+  background: linear-gradient(90deg, #18ab4b 0%, #18ab4b 100%);
 }
