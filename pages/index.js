@@ -34,6 +34,9 @@ export default function Home() {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Helvetica:wght@400;700&display=swap" rel="stylesheet" />
       </Head>
       <div className="assessment-bg">
+        <div className="assessment-header">
+          <img src="/defatoed.png" alt="DEfactoED Logo" className="defactoed-logo" />
+        </div>
         <div className="assessment-card">
           <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
           <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.<br />

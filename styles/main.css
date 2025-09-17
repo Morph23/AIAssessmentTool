@@ -1,9 +1,10 @@
 
 
 
+
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, 'Inter', sans-serif;
-  background: #f7fafd;
+  background: #000;
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -12,29 +13,51 @@ body {
 .assessment-bg {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: #f7fafd;
+  justify-content: flex-start;
+  background: #000;
+  padding-top: 0;
+}
+
+.assessment-header {
+  width: 100vw;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: transparent;
+  margin-bottom: 0;
+}
+.defactoed-logo {
+  width: 100%;
+  max-width: 100vw;
+  height: auto;
+  display: block;
+  margin: 0;
+  object-fit: cover;
 }
 
 .assessment-card {
   max-width: 540px;
   width: 100%;
   margin: 40px auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 32px rgba(33, 134, 247, 0.10), 0 1.5px 6px rgba(44, 62, 80, 0.06);
+  background: rgba(30, 30, 30, 0.72);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 1.5px 6px rgba(44, 62, 80, 0.10);
   padding: 38px 32px 32px 32px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  border: 1.5px solid #e3eaf7;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  color: #fff;
 }
 
 
 .assessment-title {
   text-align: center;
-  color: #2186f7;
+  color: #2bb673;
   font-size: 2.3rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
@@ -46,13 +69,13 @@ body {
 
 .assessment-subtitle {
   text-align: center;
-  color: #6b7280;
+  color: #b0b0b0;
   font-size: 1.1rem;
   margin-bottom: 18px;
   font-weight: 500;
 }
 .assessment-site {
-  color: #b0b0b0;
+  color: #2bb673;
   font-size: 0.98rem;
 }
 .assessment-divider {
