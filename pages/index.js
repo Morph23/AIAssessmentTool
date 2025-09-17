@@ -50,28 +50,48 @@ export default function Home() {
               <label htmlFor="position">Teaching Position</label>
               <select id="position" name="position" value={form.position} onChange={handleChange} required>
                 <option value="" disabled>Select your position...</option>
-                <option value="1">Option 1</option>
+                <option value="primary">Teacher (Primary/Elementary)</option>
+                <option value="secondary">Teacher (Secondary/High School)</option>
+                <option value="hod">Head of Department/Subject Lead</option>
+                <option value="sen">SEN Coordinator/Learning Support Teacher</option>
+                <option value="admin">School Leader/Administrator (e.g., Headteacher, Deputy Head)</option>
+                <option value="trainee">Trainee Teacher/Early Career Teacher</option>
               </select>
             </div>
             <div className="assessment-field">
               <label htmlFor="experience">Teaching Experience</label>
               <select id="experience" name="experience" value={form.experience} onChange={handleChange} required>
                 <option value="" disabled>Select experience...</option>
-                <option value="1">Option 1</option>
+                <option value="new">New to teaching (0-2 years)</option>
+                <option value="developing">Developing teacher (3-7 years)</option>
+                <option value="experienced">Experienced teacher (8-15 years)</option>
+                <option value="seasoned">Seasoned educator (15+ years)</option>
               </select>
             </div>
             <div className="assessment-field">
               <label htmlFor="subject">Subject Area</label>
               <select id="subject" name="subject" value={form.subject} onChange={handleChange} required>
                 <option value="" disabled>Select subject area...</option>
-                <option value="1">Option 1</option>
+                <option value="primary">Primary/Elementary Education (General)</option>
+                <option value="english">English/Literacy</option>
+                <option value="math">Mathematics/Numeracy</option>
+                <option value="science">Science</option>
+                <option value="humanities">Humanities (History, Geography, RE)</option>
+                <option value="arts">Arts & Design (Art, Music, Drama)</option>
+                <option value="pe">Physical Education</option>
+                <option value="ict">ICT/Computer Science</option>
+                <option value="vocational">Vocational Subjects</option>
+                <option value="sen">Special Educational Needs (SEN)</option>
               </select>
             </div>
             <div className="assessment-field">
               <label htmlFor="aiKnowledge">Current AI Knowledge</label>
               <select id="aiKnowledge" name="aiKnowledge" value={form.aiKnowledge} onChange={handleChange} required>
                 <option value="" disabled>Select your current AI knowledge level...</option>
-                <option value="1">Option 1</option>
+                <option value="minimal">Minimal - Limited exposure to AI concepts</option>
+                <option value="basic">Basic - General awareness of AI applications</option>
+                <option value="intermediate">Intermediate - Some hands-on experience with AI tools</option>
+                <option value="advanced">Advanced - Regular use of AI in work/research</option>
               </select>
             </div>
             <button
