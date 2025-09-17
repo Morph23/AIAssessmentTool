@@ -22,7 +22,7 @@ export default function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isComplete) {
-      router.push('/next');
+      router.push('/assessment');
     }
   };
 
