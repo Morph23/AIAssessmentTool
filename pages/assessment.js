@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 const QUESTIONS = [
@@ -268,8 +269,28 @@ const QUESTIONS = [
 export default function Assessment() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(''));
+  const [role, setRole] = useState('');
+  const [experience, setExperience] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [orgsize, setOrgsize] = useState('');
   const router = useRouter();
   const progress = ((current + 1) / QUESTIONS.length) * 100;
+
+  useEffect(() => {
+    // Load personal context saved on the index page
+    if (typeof window === 'undefined') return;
+    try {
+      const meta = JSON.parse(localStorage.getItem('assessmentMeta'));
+      if (meta) {
+        setRole(meta.position || '');
+        setExperience(meta.experience || '');
+        setIndustry(meta.subject || '');
+        setOrgsize(meta.aiKnowledge || '');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   const handleSelect = (val) => {
     const updated = [...answers];
@@ -278,8 +299,45 @@ export default function Assessment() {
   };
 
   const handleNext = () => {
-    if (current < QUESTIONS.length - 1) setCurrent(current + 1);
-    else router.push('/results');
+    if (current < QUESTIONS.length - 1) {
+      setCurrent(current + 1);
+    } else {
+      // Before navigating to results, persist assessment data to localStorage
+      if (typeof window !== 'undefined') {
+          try {
+          // Convert selected string values into numeric scores using custom mapping [2,3,5,8]
+          const SCORE_MAP = [2, 3, 5, 8];
+          const numericAnswers = answers.map((val, idx) => {
+            const opts = QUESTIONS[idx].options || [];
+            const found = opts.findIndex(o => o.value === val);
+            return found >= 0 ? SCORE_MAP[found] : 0;
+          });
+
+          // Build a lightweight questions payload (titles + option labels)
+          const questionsPayload = QUESTIONS.map(q => ({
+            title: q.title,
+            options: q.options.map(o => ({ label: o.label }))
+          }));
+
+          const payload = {
+            answers: numericAnswers,
+            questions: questionsPayload,
+            context: {
+              role,
+              experience,
+              industry,
+              orgsize
+            }
+          };
+
+          localStorage.setItem('assessmentResults', JSON.stringify(payload));
+        } catch (e) {
+          console.error('Failed to save assessment results:', e);
+        }
+      }
+
+      router.push('/results');
+    }
   };
 
   const handlePrev = () => {
@@ -330,7 +388,7 @@ export default function Assessment() {
               {current < QUESTIONS.length - 1 ? (
                 <button className="assessment-nav-btn primary" type="button" onClick={handleNext} disabled={!selected}>Next</button>
               ) : (
-                <button className="assessment-nav-btn primary" type="button" onClick={() => router.push('/results')} disabled={!selected}>Show Results</button>
+                <button className="assessment-nav-btn primary" type="button" onClick={handleNext} disabled={!selected}>Show Results</button>
               )}
             </div>
           </div>

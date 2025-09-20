@@ -22,6 +22,14 @@ export default function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isComplete) {
+      // Persist personal context so the assessment page can read it
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('assessmentMeta', JSON.stringify(form));
+        }
+      } catch (err) {
+        console.error('Failed to save assessment meta to localStorage', err);
+      }
       router.push('/assessment');
     }
   };
