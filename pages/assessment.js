@@ -305,8 +305,8 @@ export default function Assessment() {
       // Before navigating to results, persist assessment data to localStorage
       if (typeof window !== 'undefined') {
           try {
-          // Convert selected string values into numeric scores using custom mapping [2,3,5,8]
-          const SCORE_MAP = [2, 3, 5, 8];
+          // Convert selected string values into numeric scores using simple 1-4 scale
+          const SCORE_MAP = [1, 2, 3, 4];
           const numericAnswers = answers.map((val, idx) => {
             const opts = QUESTIONS[idx].options || [];
             const found = opts.findIndex(o => o.value === val);

@@ -7,39 +7,47 @@ export default async function handler(req, res) {
 
   try {
     const {
-      // Index page data
-      name,
-      role,
-      organization,
-      orgSize,
-      aiKnowledge,
-      // Assessment data
-      answers,
+      // Assessment data (anonymous)
+      profileResponses, // Array of profile questions/answers
+      assessmentResponses, // Array of 20 questions with full details
       resultPercentage
     } = req.body
 
     // Validate required fields
-    if (!name || !answers || resultPercentage === undefined) {
+    if (!assessmentResponses || resultPercentage === undefined) {
       return res.status(400).json({ 
-        error: 'Missing required fields: name, answers, and resultPercentage' 
+        error: 'Missing required fields: assessmentResponses and resultPercentage' 
       })
     }
 
-    // Insert into Supabase
+    // Prepare single record with all data
+    const assessmentRecord = {
+      result_percentage: resultPercentage,
+      created_at: new Date().toISOString()
+    }
+
+    // Add profile responses to main record
+    if (profileResponses && profileResponses.length > 0) {
+      profileResponses.forEach(response => {
+        const fieldName = response.questionType
+        assessmentRecord[fieldName] = response.selectedValue
+        assessmentRecord[`${fieldName}_label`] = response.selectedLabel
+      })
+    }
+
+    // Add assessment responses (Q1-Q20) to main record
+    if (assessmentResponses && assessmentResponses.length > 0) {
+      assessmentResponses.forEach((response, index) => {
+        const qNum = index + 1
+        assessmentRecord[`q${qNum}_value`] = response.selectedValue
+        assessmentRecord[`q${qNum}_label`] = response.selectedLabel
+      })
+    }
+
+    // Insert single record into Supabase
     const { data, error } = await supabase
       .from('assessments')
-      .insert([
-        {
-          name: name,
-          role: role || null,
-          organization: organization || null,
-          org_size: orgSize || null,
-          ai_knowledge: aiKnowledge || null,
-          answers: answers, // JSON array of 20 responses
-          result_percentage: resultPercentage,
-          created_at: new Date().toISOString()
-        }
-      ])
+      .insert([assessmentRecord])
       .select()
 
     if (error) {
@@ -50,7 +58,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ 
       success: true, 
       message: 'Assessment saved successfully',
-      id: data[0].id 
+      assessmentId: data[0].id 
     })
 
   } catch (error) {

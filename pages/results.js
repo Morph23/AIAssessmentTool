@@ -48,15 +48,98 @@ async function saveAssessmentData(data, resultPercentage) {
   try {
     const context = data.context || {}
     
+    // Prepare profile responses (index page questions)
+    const profileResponses = []
+    
+    // Map index page questions with their labels
+    const profileQuestions = {
+      position: {
+        text: "What is your current role in education?",
+        valueToLabel: {
+          'primary': 'Primary/Elementary Teacher',
+          'secondary': 'Secondary/High School Teacher', 
+          'hod': 'Head of Department/Subject Lead',
+          'sen': 'SEN Coordinator/Learning Support Teacher',
+          'admin': 'School Leader/Administrator',
+          'trainee': 'Trainee Teacher/Early Career Teacher'
+        }
+      },
+      experience: {
+        text: "How many years of teaching experience do you have?",
+        valueToLabel: {
+          'new': '0-2 years experience',
+          'developing': '3-7 years experience', 
+          'experienced': '8-15 years experience',
+          'seasoned': '15+ years experience'
+        }
+      },
+      subject: {
+        text: "What is your primary subject area or focus?",
+        valueToLabel: {
+          'primary': 'Primary/Elementary (General)',
+          'english': 'English/Literacy',
+          'math': 'Mathematics/Numeracy',
+          'science': 'Science',
+          'humanities': 'Humanities',
+          'arts': 'Arts & Design',
+          'pe': 'Physical Education',
+          'ict': 'ICT/Computer Science',
+          'vocational': 'Vocational Subjects',
+          'sen': 'Special Educational Needs'
+        }
+      },
+      aiKnowledge: {
+        text: "What is your current level of AI knowledge?",
+        valueToLabel: {
+          'minimal': 'Minimal - Limited exposure',
+          'basic': 'Basic - General awareness',
+          'intermediate': 'Intermediate - Some hands-on experience', 
+          'advanced': 'Advanced - Regular use'
+        }
+      }
+    }
+
+    // Add profile responses if they exist
+    Object.keys(profileQuestions).forEach(questionType => {
+      const contextKey = questionType === 'aiKnowledge' ? 'orgsize' : questionType
+      const value = context[contextKey]
+      if (value && profileQuestions[questionType].valueToLabel[value]) {
+        profileResponses.push({
+          questionType: questionType,
+          questionText: profileQuestions[questionType].text,
+          selectedValue: value,
+          selectedLabel: profileQuestions[questionType].valueToLabel[value]
+        })
+      }
+    })
+
+    // Prepare assessment responses (20 questions with detailed info)
+    const assessmentResponses = data.answers.map((score, index) => {
+      const question = data.questions[index] || { 
+        title: `Question ${index + 1}`, 
+        prompt: '',
+        options: [] 
+      }
+      
+      // Calculate which option was selected based on score (1-4 scale)
+      const scoreInt = parseInt(score, 10) || 0
+      const optionIndex = Math.max(0, Math.min(scoreInt - 1, question.options.length - 1))
+      const selectedOption = question.options[optionIndex] || {}
+      
+      return {
+        questionNumber: index + 1,
+        questionTitle: question.title || `Question ${index + 1}`,
+        questionPrompt: question.prompt || '',
+        selectedValue: scoreInt, // This is the 1-4 numeric value 
+        selectedLabel: selectedOption.label || `Option ${optionIndex + 1}`,
+        selectedDescription: selectedOption.desc || ''
+      }
+    })
+
     const payload = {
-      // Index page data
-      name: context.name || 'Anonymous',
-      role: context.role || null,
-      organization: context.organization || null,
-      orgSize: context.orgsize || null,
-      aiKnowledge: context.orgsize || null, // orgsize maps to AI knowledge level
-      // Assessment data
-      answers: data.answers,
+      // Detailed question responses (anonymous)
+      profileResponses: profileResponses,
+      assessmentResponses: assessmentResponses,
       resultPercentage: resultPercentage
     }
 
@@ -71,7 +154,7 @@ async function saveAssessmentData(data, resultPercentage) {
     }
 
     const result = await response.json()
-    console.log('Assessment saved successfully:', result.id)
+    console.log('Assessment saved successfully:', result.assessmentId)
   } catch (error) {
     console.error('Failed to save assessment data:', error)
     // Don't throw error - we don't want to break the user experience
@@ -100,7 +183,7 @@ export default function ResultsPage() {
 
         // Calculate overall score percentage
         const totalScore = data.answers.reduce((sum, value) => sum + (parseInt(value, 10) || 0), 0)
-        const maxPossibleScore = data.questions.length * 8 // Max score per question is 8
+        const maxPossibleScore = data.questions.length * 4 // Max score per question is 4
         const scorePercent = Math.round((totalScore / maxPossibleScore) * 100)
         
         // Set the interpretation first before using it in the prompt
