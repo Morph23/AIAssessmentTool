@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-  "start": "next start"
-    
+    "start": "next start"
   },
   "keywords": [
     "AI",
@@ -18,15 +17,10 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"
-  },
-  "devDependencies": {
-  },
-
-  "next": {
-    "output": "export"
   },
   "repository": {
     "type": "git",

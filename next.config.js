@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  output: 'export',
+  // Removing 'output: export' to enable API routes
   reactStrictMode: true,
 };
-
-module.exports = nextConfig;
 
 module.exports = nextConfig;

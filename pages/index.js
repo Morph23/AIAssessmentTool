@@ -39,7 +39,6 @@ export default function Home() {
       <Head>
         <title>Personalised AI Teacher Assessment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Helvetica:wght@400;700&display=swap" rel="stylesheet" />
       </Head>
       <div className="assessment-bg">
         <div className="assessment-header">
