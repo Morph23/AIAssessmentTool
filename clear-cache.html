@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Assessment Cache</title>
+    <style>
+        body {
+            font-family: 'TodaySB', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 20px;
+        }
+        .info {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear Assessment Cache</h1>
+        <p class="info">This will clear all cached assessment data including localStorage, sessionStorage, and any saved assessment results.</p>
+        
+        <button class="btn" onclick="clearAllCache()">Clear All Cache Data</button>
+        <button class="btn" onclick="clearAssessmentData()">Clear Assessment Data Only</button>
+        <button class="btn" onclick="showStorageInfo()">Show Current Storage</button>
+        
+        <div id="result"></div>
+        <div id="storage-info"></div>
+    </div>
+
+    <script>
+        function clearAllCache() {
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                
+                // Clear sessionStorage
+                sessionStorage.clear();
+                
+                // Clear any cookies for this domain
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                document.getElementById('result').innerHTML = 
+                    '<div class="success">✅ All cache data cleared successfully!</div>';
+                
+                showStorageInfo();
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    '<div style="color: red;">❌ Error clearing cache: ' + error.message + '</div>';
+            }
+        }
+        
+        function clearAssessmentData() {
+            try {
+                // Clear specific assessment keys
+                const assessmentKeys = ['assessmentResults', 'assessmentMeta'];
+                assessmentKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                    sessionStorage.removeItem(key);
+                });
+                
+                document.getElementById('result').innerHTML = 
+                    '<div class="success">✅ Assessment data cleared successfully!</div>';
+                
+                showStorageInfo();
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    '<div style="color: red;">❌ Error clearing assessment data: ' + error.message + '</div>';
+            }
+        }
+        
+        function showStorageInfo() {
+            const localStorageSize = JSON.stringify(localStorage).length;
+            const sessionStorageSize = JSON.stringify(sessionStorage).length;
+            const localKeys = Object.keys(localStorage);
+            const sessionKeys = Object.keys(sessionStorage);
+            
+            document.getElementById('storage-info').innerHTML = `
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; text-align: left;">
+                    <h3>Storage Status:</h3>
+                    <p><strong>localStorage:</strong> ${localStorageSize} bytes, ${localKeys.length} keys</p>
+                    <p><strong>sessionStorage:</strong> ${sessionStorageSize} bytes, ${sessionKeys.length} keys</p>
+                    ${localKeys.length > 0 ? '<p><strong>localStorage keys:</strong> ' + localKeys.join(', ') + '</p>' : ''}
+                    ${sessionKeys.length > 0 ? '<p><strong>sessionStorage keys:</strong> ' + sessionKeys.join(', ') + '</p>' : ''}
+                </div>
+            `;
+        }
+        
+        // Show initial storage info
+        showStorageInfo();
+    </script>
+</body>
+</html>

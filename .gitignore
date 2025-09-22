@@ -8,7 +8,5 @@ out/
 npm-debug.log*
 bfg-*.jar
 Screenshot*.png
-
-# Ignore database setup files
 SUPABASE_SETUP.md
 

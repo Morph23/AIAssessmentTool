@@ -44,120 +44,51 @@ function getInterpretation(percent) {
 }
 
 // Function to save assessment data to Supabase
-async function saveAssessmentData(data, resultPercentage) {
+async function saveAssessmentData(assessmentData, resultPercentage) {
   try {
-    const context = data.context || {}
+    console.log('Preparing to save assessment data...')
     
-    // Prepare profile responses (index page questions)
-    const profileResponses = []
+    // Extract context data from assessment
+    const context = assessmentData.context || {}
     
-    // Map index page questions with their labels
-    const profileQuestions = {
-      position: {
-        text: "What is your current role in education?",
-        valueToLabel: {
-          'primary': 'Primary/Elementary Teacher',
-          'secondary': 'Secondary/High School Teacher', 
-          'hod': 'Head of Department/Subject Lead',
-          'sen': 'SEN Coordinator/Learning Support Teacher',
-          'admin': 'School Leader/Administrator',
-          'trainee': 'Trainee Teacher/Early Career Teacher'
-        }
-      },
-      experience: {
-        text: "How many years of teaching experience do you have?",
-        valueToLabel: {
-          'new': '0-2 years experience',
-          'developing': '3-7 years experience', 
-          'experienced': '8-15 years experience',
-          'seasoned': '15+ years experience'
-        }
-      },
-      subject: {
-        text: "What is your primary subject area or focus?",
-        valueToLabel: {
-          'primary': 'Primary/Elementary (General)',
-          'english': 'English/Literacy',
-          'math': 'Mathematics/Numeracy',
-          'science': 'Science',
-          'humanities': 'Humanities',
-          'arts': 'Arts & Design',
-          'pe': 'Physical Education',
-          'ict': 'ICT/Computer Science',
-          'vocational': 'Vocational Subjects',
-          'sen': 'Special Educational Needs'
-        }
-      },
-      aiKnowledge: {
-        text: "What is your current level of AI knowledge?",
-        valueToLabel: {
-          'minimal': 'Minimal - Limited exposure',
-          'basic': 'Basic - General awareness',
-          'intermediate': 'Intermediate - Some hands-on experience', 
-          'advanced': 'Advanced - Regular use'
-        }
-      }
-    }
-
-    // Add profile responses if they exist
-    Object.keys(profileQuestions).forEach(questionType => {
-      const contextKey = questionType === 'aiKnowledge' ? 'orgsize' : questionType
-      const value = context[contextKey]
-      if (value && profileQuestions[questionType].valueToLabel[value]) {
-        profileResponses.push({
-          questionType: questionType,
-          questionText: profileQuestions[questionType].text,
-          selectedValue: value,
-          selectedLabel: profileQuestions[questionType].valueToLabel[value]
-        })
-      }
-    })
-
-    // Prepare assessment responses (20 questions with detailed info)
-    const assessmentResponses = data.answers.map((score, index) => {
-      const question = data.questions[index] || { 
-        title: `Question ${index + 1}`, 
-        prompt: '',
-        options: [] 
-      }
-      
-      // Calculate which option was selected based on score (1-4 scale)
-      const scoreInt = parseInt(score, 10) || 0
-      const optionIndex = Math.max(0, Math.min(scoreInt - 1, question.options.length - 1))
-      const selectedOption = question.options[optionIndex] || {}
-      
-      return {
-        questionNumber: index + 1,
-        questionTitle: question.title || `Question ${index + 1}`,
-        questionPrompt: question.prompt || '',
-        selectedValue: scoreInt, // This is the 1-4 numeric value 
-        selectedLabel: selectedOption.label || `Option ${optionIndex + 1}`,
-        selectedDescription: selectedOption.desc || ''
-      }
-    })
-
+    // Prepare the data payload
     const payload = {
-      // Detailed question responses (anonymous)
-      profileResponses: profileResponses,
-      assessmentResponses: assessmentResponses,
+      position: context.position || null,
+      experience: context.experience || null,
+      subject: context.subject || null,
+      aiKnowledge: context.aiKnowledge || null,
+      answers: assessmentData.answers || [],
       resultPercentage: resultPercentage
     }
-
+    
+    console.log('Sending assessment data:', {
+      ...payload,
+      answersLength: payload.answers.length
+    })
+    
+    // Call the API endpoint
     const response = await fetch('/api/save-assessment', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(payload)
     })
-
+    
     if (!response.ok) {
-      throw new Error(`Failed to save: ${response.status}`)
+      const errorData = await response.json()
+      throw new Error(`Failed to save assessment: ${errorData.error || response.statusText}`)
     }
-
+    
     const result = await response.json()
-    console.log('Assessment saved successfully:', result.assessmentId)
+    console.log('Assessment saved successfully:', result.id)
+    
+    return result
+    
   } catch (error) {
-    console.error('Failed to save assessment data:', error)
-    // Don't throw error - we don't want to break the user experience
+    console.error('Error saving assessment data:', error)
+    // Don't throw the error to avoid breaking the user experience
+    // Just log it for debugging purposes
   }
 }
 
@@ -250,10 +181,10 @@ export default function ResultsPage() {
         const prompt = `You are an expert AI Teaching Coach. Produce a concise, practical, and encouraging personalised action plan for a teacher. Use HTML headings and lists as in the structure below. Tone: supportive, jargon-free.
 
 Teacher context:
-- Role: ${roleMap[getContextValue('role')] || getContextValue('role')}
+- Role: ${roleMap[getContextValue('position')] || getContextValue('position')}
 - Experience: ${experienceMap[getContextValue('experience')] || getContextValue('experience')}
-- Subject: ${subjectMap[getContextValue('industry')] || getContextValue('industry')}
-- Current AI Knowledge: ${aiKnowledgeMap[getContextValue('orgsize')] || getContextValue('orgsize')}
+- Subject: ${subjectMap[getContextValue('subject')] || getContextValue('subject')}
+- Current AI Knowledge: ${aiKnowledgeMap[getContextValue('aiKnowledge')] || getContextValue('aiKnowledge')}
 
 Assessment summary:
 Overall percentage: ${scorePercent}%
@@ -417,12 +348,12 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       }
     }
 
-    const role = roleMap[context.role] || context.role || 'Teacher'
-    const subject = subjectMap[context.industry] || context.industry || 'General'
+    const role = roleMap[context.position] || context.position || 'Teacher'
+    const subject = subjectMap[context.subject] || context.subject || 'General'
     const experience = experienceMap[context.experience] || context.experience || 'Experienced'
-    const aiKnowledge = aiKnowledgeMap[context.orgsize] || context.orgsize || 'Limited AI experience'
+    const aiKnowledge = aiKnowledgeMap[context.aiKnowledge] || context.aiKnowledge || 'Limited AI experience'
     
-    const subjectSpecific = subjectSpecificCourses[context.industry] || subjectSpecificCourses['primary']
+    const subjectSpecific = subjectSpecificCourses[context.subject] || subjectSpecificCourses['primary']
 
     // Webinar options (rotate based on role/experience for variety)
     const webinars = [

@@ -269,10 +269,10 @@ const QUESTIONS = [
 export default function Assessment() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(''));
-  const [role, setRole] = useState('');
+  const [position, setPosition] = useState('');
   const [experience, setExperience] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [orgsize, setOrgsize] = useState('');
+  const [subject, setSubject] = useState('');
+  const [aiKnowledge, setAiKnowledge] = useState('');
   const router = useRouter();
   const progress = ((current + 1) / QUESTIONS.length) * 100;
 
@@ -282,10 +282,10 @@ export default function Assessment() {
     try {
       const meta = JSON.parse(localStorage.getItem('assessmentMeta'));
       if (meta) {
-        setRole(meta.position || '');
+        setPosition(meta.position || '');
         setExperience(meta.experience || '');
-        setIndustry(meta.subject || '');
-        setOrgsize(meta.aiKnowledge || '');
+        setSubject(meta.subject || '');
+        setAiKnowledge(meta.aiKnowledge || '');
       }
     } catch (e) {
       // ignore
@@ -305,7 +305,10 @@ export default function Assessment() {
       // Before navigating to results, persist assessment data to localStorage
       if (typeof window !== 'undefined') {
           try {
-          // Convert selected string values into numeric scores using simple 1-4 scale
+          // Get the user context from index page
+          const meta = JSON.parse(localStorage.getItem('assessmentMeta') || '{}');
+          
+          // Convert selected string values into numeric scores using custom mapping [1,2,3,4]
           const SCORE_MAP = [1, 2, 3, 4];
           const numericAnswers = answers.map((val, idx) => {
             const opts = QUESTIONS[idx].options || [];
@@ -323,10 +326,11 @@ export default function Assessment() {
             answers: numericAnswers,
             questions: questionsPayload,
             context: {
-              role,
+              // Assessment context only - no personal info
+              position,
               experience,
-              industry,
-              orgsize
+              subject,
+              aiKnowledge
             }
           };
 
