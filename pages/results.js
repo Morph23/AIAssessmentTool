@@ -304,48 +304,268 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       'advanced': 'Advanced AI experience'
     }
 
-    // Subject-specific course recommendations
-    const subjectSpecificCourses = {
-      'primary': {
-        course: 'AI for Primary Education',
-        description: 'AI for cross-curricular teaching, early literacy, numeracy support, and classroom management.'
-      },
+    // Subject-specific level-based learning paths
+    const subjectLearningPaths = {
       'english': {
-        course: 'Using AI to Enhance English Teaching',
-        description: 'AI for essay feedback, literary analysis, creative writing prompts, differentiation.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Education', 'Using AI for Lesson Planning', 'AI Tools for Grammar/Writing'],
+            webinars: ['AI Basics for Language Teachers', 'Practical AI Tools for Literacy'],
+            resources: ['UNESCO "AI in Education" Guide', 'British Council AI in English Teaching']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Differentiated Reading', 'Creative Writing with Generative AI', 'AI for Assessment & Feedback'],
+            webinars: ['AI Reading Platforms', 'Case Study: AI in Feedback'],
+            resources: ['JISC AI in Assessment', 'AI-Supported Lesson Plans (English)']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['Building Student AI Literacy', 'AI in Literature & Critical Thinking', 'Managing AI Class Projects'],
+            webinars: ['AI Ethics & Creative Writing', 'Leading AI Change in English Departments'],
+            resources: ['FutureLearn AI in Education Report', 'EdTech Case Studies (English)']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI-Enhanced Curricula', 'Research in AI & Language Learning', 'Training Teachers in AI'],
+            webinars: ['AI Leadership in English Teaching', 'Innovating English Pedagogy with AI'],
+            resources: ['OECD AI in Education Whitepaper', 'Research on AI in Applied Linguistics']
+          }
+        }
       },
       'math': {
-        course: 'AI in Mathematics Education',
-        description: 'AI for problem-solving support, mathematical reasoning, adaptive practice, and assessment.'
-      },
-      'science': {
-        course: 'AI Tools for Science Education',
-        description: 'AI for experiment design, data analysis, scientific writing, and inquiry-based learning.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Education', 'AI Tools for Math Worksheets', 'Basics of Automated Marking'],
+            webinars: ['AI Basics for STEM Teachers', 'Using AI for Practice Problems'],
+            resources: ['UNESCO "AI in Education"', 'NCTM (US) resource on AI & Maths']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['Adaptive AI Math Platforms', 'AI for Formative Assessment', 'AI-Generated Problem Sets'],
+            webinars: ['Personalised Learning with AI in Maths', 'Case Study: AI in Assessment'],
+            resources: ['JISC Adaptive Learning Guide', 'Lesson Bank: AI in Maths']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['AI for Data Analysis Projects', 'Teaching Statistics with AI Tools', 'Student AI Project Design'],
+            webinars: ['Ethics of AI in STEM', 'Departmental AI Integration'],
+            resources: ['Royal Society AI in STEM', 'FutureLearn AI for Educators']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI-Integrated Math Curricula', 'Research in AI & Mathematics', 'Training Colleagues in AI'],
+            webinars: ['AI Policy & STEM Leadership', 'Innovating with AI in Maths Pedagogy'],
+            resources: ['OECD AI STEM Reports', 'Research Papers on AI in Mathematics']
+          }
+        }
       },
       'humanities': {
-        course: 'AI in Humanities Education',
-        description: 'AI for research support, source analysis, essay writing, and historical inquiry.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Education', 'Using AI for History/Geography Lesson Prep', 'Basics of AI Mapping/Timeline Tools'],
+            webinars: ['AI Basics for Humanities', 'AI Tools for Storytelling/Maps'],
+            resources: ['UNESCO "AI & Humanities"', 'Historical Association AI resources']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Source Analysis', 'AI-Assisted Essay Feedback', 'AI Tools for Research Skills'],
+            webinars: ['AI & Historical Thinking', 'AI in Research Projects'],
+            resources: ['JISC AI in Research', 'Humanities Lesson Bank with AI']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['Teaching Critical AI Literacy', 'AI for Debate & Argument Analysis', 'Project-Based AI in Humanities'],
+            webinars: ['Ethics of AI in Social Studies', 'Leading AI Humanities Integration'],
+            resources: ['Council of Europe AI & Democracy', 'EdTech Case Studies (Humanities)']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI Curricula for Humanities', 'AI Research in Education', 'Training Humanities Teachers'],
+            webinars: ['Policy & Ethics in AI Humanities', 'Innovative Teaching with AI Tools'],
+            resources: ['OECD AI & Democracy', 'Peer-Reviewed Research on AI in Humanities']
+          }
+        }
       },
       'arts': {
-        course: 'Creative AI for Arts Education',
-        description: 'AI for creative inspiration, design thinking, art critique, and multimedia projects.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Creative Education', 'Basics of AI Image/Audio Tools', 'Using AI for Classroom Projects'],
+            webinars: ['AI Basics for Arts Teachers', 'Creative AI Tools Overview'],
+            resources: ['UNESCO AI & Creativity', 'Tate resource on AI in Arts']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Music/Art Creation', 'Using AI for Visual Analysis', 'Generative AI for Student Projects'],
+            webinars: ['Case Study: AI in Visual Arts', 'AI in Music & Performance'],
+            resources: ['JISC AI & Creativity', 'Lesson Plans for AI Arts']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['Ethics of AI in Creativity', 'Managing Student AI Art Projects', 'AI for Advanced Multimedia Analysis'],
+            webinars: ['Debate: AI & Authenticity in Arts', 'Leading Arts with AI'],
+            resources: ['Research: AI & Arts', 'Creative Industries AI Report']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI Arts Curricula', 'AI in Creative Research', 'Training in AI & Arts Education'],
+            webinars: ['Leadership in AI Arts', 'Innovation in AI Creativity'],
+            resources: ['OECD AI & Creative Industries', 'Peer Research: AI in Arts']
+          }
+        }
       },
-      'pe': {
-        course: 'AI in Physical Education',
-        description: 'AI for fitness tracking, movement analysis, personalized training, and health education.'
+      'science': {
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Education', 'AI Tools for Experiments', 'Basics of AI Simulations'],
+            webinars: ['AI Basics in Science', 'Simulations with AI'],
+            resources: ['UNESCO AI in STEM', 'Royal Society Teaching AI']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Lab Reports', 'AI Simulations in Physics/Biology', 'AI for Scientific Research Skills'],
+            webinars: ['Case Study: AI in Science Labs', 'AI & Inquiry-Based Learning'],
+            resources: ['JISC STEM AI', 'Science Lesson Bank with AI']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['AI for Data Analysis', 'AI in Scientific Ethics', 'Student-Led AI Science Projects'],
+            webinars: ['AI in Climate Science', 'Leading AI in Science Departments'],
+            resources: ['FutureLearn AI Science', 'Research: AI in STEM']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI-Integrated Science Curricula', 'Researching AI in Science Education', 'Training Colleagues'],
+            webinars: ['AI in Global Scientific Research', 'Policy for Science AI Integration'],
+            resources: ['OECD STEM AI', 'Peer-Reviewed Science AI Studies']
+          }
+        }
+      },
+      'primary': {
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in Primary', 'AI Tools for Classroom Organisation', 'Basics of AI Storytelling'],
+            webinars: ['AI Basics for Primary', 'Practical AI in Early Learning'],
+            resources: ['UNESCO AI in Early Childhood', 'Teacher Primary AI Toolkit']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Differentiation', 'AI Games for Numeracy & Literacy', 'AI in Formative Feedback'],
+            webinars: ['Case Study: AI in Primary Literacy', 'AI Play-Based Learning'],
+            resources: ['JISC Primary EdTech', 'Lesson Banks for Primary AI']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['Teaching AI Awareness to Children', 'AI in Cross-Curricular Projects', 'Student Creativity with AI'],
+            webinars: ['AI & Safeguarding', 'Leading Primary AI Initiatives'],
+            resources: ['UNICEF AI & Children', 'Primary School AI Case Studies']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI Curricula for Primary', 'Research on AI in Early Years', 'Training Primary Colleagues'],
+            webinars: ['Policy in Primary AI', 'Innovations in Primary Pedagogy'],
+            resources: ['OECD AI & Childhood', 'Research on Primary AI Learning']
+          }
+        }
       },
       'ict': {
-        course: 'Advanced AI for Computer Science',
-        description: 'AI programming concepts, machine learning basics, computational thinking, and coding projects.'
-      },
-      'vocational': {
-        course: 'AI in Vocational Education',
-        description: 'AI for skills assessment, industry-relevant applications, and career preparation.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI Concepts', 'Basics of AI Coding Platforms', 'Classroom AI Tools'],
+            webinars: ['AI Basics for CS Teachers', 'Teaching AI Fundamentals'],
+            resources: ['UNESCO AI Literacy', 'Scratch/AI Resources']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['Teaching AI Algorithms', 'Using AI APIs in Class', 'AI Project Development'],
+            webinars: ['Case Study: AI in Coding Projects', 'AI Ethics in CS'],
+            resources: ['JISC Computer Science AI', 'AI Curriculum Kits']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['Machine Learning for Schools', 'AI Ethics & Bias', 'Designing Student AI Projects'],
+            webinars: ['AI Careers for Students', 'Leading CS AI Curriculum'],
+            resources: ['Google AI Education', 'MIT AI Literacy']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Advanced Machine Learning in Education', 'Research in AI Pedagogy', 'Training CS Teachers'],
+            webinars: ['AI Policy in Computing', 'Innovation in CS Curricula'],
+            resources: ['OECD AI Literacy', 'Peer-Reviewed CS/AI Research']
+          }
+        }
       },
       'sen': {
-        course: 'AI for Special Educational Needs',
-        description: 'AI for personalized learning, accessibility tools, communication support, and adaptive learning.'
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI & Inclusion', 'Basics of AI Assistive Tech', 'AI Classroom Tools for SEN'],
+            webinars: ['AI Basics in Inclusive Ed', 'AI Tools for Accessibility'],
+            resources: ['UNESCO Inclusive AI', 'National Autistic Society AI Tools']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Reading Support', 'AI Speech & Language Tools', 'Differentiated Learning with AI'],
+            webinars: ['AI & Dyslexia', 'Case Study: AI in SEN'],
+            resources: ['JISC Inclusive EdTech', 'AI SEN Resource Bank']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['AI for Personalised Learning', 'AI Behaviour Monitoring Tools', 'Student AI Project Adaptations'],
+            webinars: ['AI & Safeguarding SEN Students', 'Leading Inclusive AI Use'],
+            resources: ['UNICEF AI & Disability', 'Inclusive EdTech Research']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI Curricula for SEN', 'Research in AI & Inclusion', 'Training SEN Teachers'],
+            webinars: ['Policy in Inclusive AI', 'Innovations in Assistive AI'],
+            resources: ['OECD Inclusive AI', 'Peer Research: AI in SEN']
+          }
+        }
+      },
+      'pe': {
+        levels: {
+          1: {
+            title: 'Level 1 (Starter)',
+            courses: ['Intro to AI in PE', 'AI Tools for Fitness Tracking', 'Basics of AI Games for Movement'],
+            webinars: ['AI Basics in PE', 'AI Tools for Coaching'],
+            resources: ['UNESCO AI & Health', 'PE Association AI Tools']
+          },
+          2: {
+            title: 'Level 2 (Intermediate)',
+            courses: ['AI for Skill Tracking', 'Wearables & AI Analysis', 'Student Progress Monitoring with AI'],
+            webinars: ['AI in Sport Training', 'Case Study: AI in PE'],
+            resources: ['JISC AI in PE', 'Sport AI EdTech Tools']
+          },
+          3: {
+            title: 'Level 3 (Advanced)',
+            courses: ['AI in Biomechanics', 'AI in Team Sports Analysis', 'Student Projects with AI in PE'],
+            webinars: ['Ethics of AI in Sport', 'Leading PE with AI Integration'],
+            resources: ['Sports Science AI Research', 'PE Case Studies AI']
+          },
+          4: {
+            title: 'Level 4 (Expert)',
+            courses: ['Designing AI PE Curricula', 'Researching AI in Sport Education', 'Training PE Colleagues'],
+            webinars: ['Policy in Sport & AI', 'Innovations in PE Pedagogy'],
+            resources: ['OECD AI in Sport', 'Peer Research in AI & Physical Ed']
+          }
+        }
       }
+    }
+
+    // Determine user level based on assessment score (simplified logic)
+    const getUserLevel = (percentage) => {
+      if (percentage >= 85) return 4; // Expert
+      if (percentage >= 70) return 3; // Advanced  
+      if (percentage >= 55) return 2; // Intermediate
+      return 1; // Starter
     }
 
     const role = roleMap[context.position] || context.position || 'Teacher'
@@ -353,136 +573,65 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
     const experience = experienceMap[context.experience] || context.experience || 'Experienced'
     const aiKnowledge = aiKnowledgeMap[context.aiKnowledge] || context.aiKnowledge || 'Limited AI experience'
     
-    const subjectSpecific = subjectSpecificCourses[context.subject] || subjectSpecificCourses['primary']
-
-    // Webinar options (rotate based on role/experience for variety)
-    const webinars = [
-      {
-        title: 'Leadership and AI: Building Confidence in Your School\'s AI Journey',
-        host: 'Education Perfect',
-        link: 'https://www.educationperfect.com/events/leadership-and-ai/',
-        focus: 'Supports school leaders and teachers in developing confidence with AI, covering ethics, leadership, and staff development.'
-      },
-      {
-        title: 'How AI is Shaping the Future of Education',
-        host: 'UNESCO IITE Webinar Series',
-        link: 'https://iite.unesco.org/events/',
-        focus: 'Explores global perspectives on AI adoption in schools, challenges around ethics, policy, and teacher readiness.'
-      },
-      {
-        title: 'Generative AI in K-12 Classrooms: Opportunities and Challenges',
-        host: 'ISTE / EdWeb',
-        link: 'https://home.edweb.net/webinar/iste2025/',
-        focus: 'Practical introduction to generative AI tools for teachers, with a focus on pedagogy, ethics, and student engagement.'
-      }
-    ]
-
-    // Reference reading options
-    const readings = [
-      {
-        title: 'Balancing between Teacher Agency and AI in Education',
-        author: 'Kei Kano, OECD',
-        link: 'https://www.oecd.org/content/dam/oecd/en/about/projects/edu/education-2040/global-forum/6th-global-forum/Kei_Kano_Balancing_between_Teacher_Agency.pdf',
-        focus: 'Highlights how teachers can retain agency while integrating AI, balancing innovation with ethics.'
-      },
-      {
-        title: 'The Potential Impact of Artificial Intelligence on Equity and Inclusion in Education',
-        author: 'OECD',
-        link: 'https://www.oecd.org/en/publications/the-potential-impact-of-artificial-intelligence-on-equity-and-inclusion-in-education_15df715b-en.html',
-        focus: 'Discusses how AI can both bridge and widen equity gaps, with implications for teachers across all levels.'
-      },
-      {
-        title: 'Artificial Intelligence in Education: Challenges and Opportunities',
-        author: 'UNESCO, 2023',
-        link: 'https://unesdoc.unesco.org/ark:/48223/pf0000385746',
-        focus: 'A comprehensive guide on AI adoption in education—ethical risks, opportunities, and guidelines for schools.'
-      }
-    ]
-
-    // Select webinar and reading based on context (for variety)
-    let selectedWebinar, selectedReading
-    
-    if (context.role === 'admin' || context.role === 'hod') {
-      selectedWebinar = webinars[0] // Leadership focused
-      selectedReading = readings[0] // Teacher agency
-    } else if (context.orgsize === 'minimal' || context.orgsize === 'basic') {
-      selectedWebinar = webinars[2] // Beginner friendly
-      selectedReading = readings[2] // Comprehensive guide
-    } else {
-      selectedWebinar = webinars[1] // Global perspective
-      selectedReading = readings[1] // Equity focus
-    }
-
-    // Determine course levels based on AI knowledge
-    const isAdvancedUser = context.orgsize === 'intermediate' || context.orgsize === 'advanced'
-    
-    const course1 = isAdvancedUser ? {
-      title: 'Advanced AI Course',
-      name: 'Advanced AI for Educators (DEfactoED)',
-      description: 'Deeper pedagogical integration of AI.'
-    } : {
-      title: 'Core AI Course',
-      name: 'AI for Educators (DEfactoED)',
-      description: 'Build confidence in understanding AI, ethics, and integration into teaching/leadership.'
-    }
-    
-    const course2 = isAdvancedUser ? {
-      title: 'Mastery Level',
-      name: 'Gemini Advanced / Prompt Engineering for Teachers',
-      description: 'Effective prompting, integrating AI into assessments and feedback.'
-    } : {
-      title: 'Introductory Tool Course',
-      name: 'Getting Started with Gemini (Google AI)',
-      description: 'Practical classroom use: lesson planning, text summarisation, feedback generation.'
-    }
+    const userLevel = getUserLevel(percent)
+    const subjectPath = subjectLearningPaths[context.subject] || subjectLearningPaths['primary']
+    const currentLevel = subjectPath.levels[userLevel]
 
     return `
     <div class="learning-path">
       <h3>Personalised AI Development Pathway</h3>
       <p><strong>Profile:</strong> ${role} | <strong>Subject:</strong> ${subject} | <strong>Experience:</strong> ${experience} | <strong>AI Knowledge:</strong> ${aiKnowledge}</p>
+      <p><strong>Your Current Level:</strong> ${currentLevel.title}</p>
       
       <table class="pathway-table">
         <thead>
           <tr>
-            <th>Stage</th>
             <th>Learning Component</th>
-            <th>Recommendation</th>
-            <th>Focus / Outcome</th>
+            <th>Your Level Recommendations</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Course 1 – Foundational</td>
-            <td>${course1.title}</td>
-            <td>${course1.name}</td>
-            <td>${course1.description}</td>
+            <td><strong>Courses</strong></td>
+            <td>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${currentLevel.courses.map(course => `<li>${course}</li>`).join('')}
+              </ul>
+            </td>
           </tr>
           <tr>
-            <td>Course 2 – AI Tool</td>
-            <td>${course2.title}</td>
-            <td>${course2.name}</td>
-            <td>${course2.description}</td>
+            <td><strong>Webinars</strong></td>
+            <td>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${currentLevel.webinars.map(webinar => `<li>${webinar}</li>`).join('')}
+              </ul>
+            </td>
           </tr>
           <tr>
-            <td>Course 3 – Subject-Specific</td>
-            <td>${subject}-focused AI Course</td>
-            <td>${subjectSpecific.course}</td>
-            <td>${subjectSpecific.description}</td>
-          </tr>
-          <tr>
-            <td>Reference Reading</td>
-            <td>Best Practice Guide</td>
-            <td><a href="${selectedReading.link}" target="_blank" style="color: #18ab4b; text-decoration: underline;">${selectedReading.title}</a> (${selectedReading.author})</td>
-            <td>${selectedReading.focus}</td>
-          </tr>
-          <tr>
-            <td>Webinar</td>
-            <td>Leadership & AI</td>
-            <td><a href="${selectedWebinar.link}" target="_blank" style="color: #18ab4b; text-decoration: underline;">${selectedWebinar.title}</a> (${selectedWebinar.host})</td>
-            <td>${selectedWebinar.focus}</td>
+            <td><strong>Resources</strong></td>
+            <td>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${currentLevel.resources.map(resource => `<li>${resource}</li>`).join('')}
+              </ul>
+            </td>
           </tr>
         </tbody>
       </table>
+      
+      <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        <h4 style="margin-top: 0; color: #18ab4b;">📈 Your Progress Path</h4>
+        <p style="margin-bottom: 5px;"><strong>All Levels Available:</strong></p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          ${[1,2,3,4].map(level => `
+            <span style="padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; ${level === userLevel ? 'background: #18ab4b; color: white; font-weight: bold;' : 'background: rgba(255,255,255,0.1); color: #ccc;'}">
+              Level ${level} ${level === userLevel ? '(Current)' : ''}
+            </span>
+          `).join('')}
+        </div>
+        <p style="margin-top: 10px; font-size: 0.9rem; color: #ccc;">
+          Complete your current level activities and retake the assessment to progress to the next level.
+        </p>
+      </div>
     </div>
     `
   }
