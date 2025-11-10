@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { DEFAULT_CONFIG_ID, getAssessmentConfig } from '../lib/assessmentConfigs'
 
 // Helper to safely read assessment data from localStorage
 function readAssessmentData() {
@@ -10,12 +11,17 @@ function readAssessmentData() {
     return results || null
   } catch (error) {
     console.error('Error reading assessment data:', error)
+    try {
+      localStorage.removeItem('assessmentResults')
+    } catch (storageError) {
+      console.warn('Unable to clear invalid assessment results from storage', storageError)
+    }
     return null
   }
 }
 
-// Map percentage score to interpretation
-function getInterpretation(percent) {
+// Map percentage score to interpretation (fallback when config ranges unavailable)
+function getPercentInterpretation(percent) {
   if (percent >= 90) return { 
     label: '🌟 AI Education Pioneer', 
     color: '#18ab4b', 
@@ -43,52 +49,116 @@ function getInterpretation(percent) {
   }
 }
 
+function resolveInterpretation(config, totalScore, percent) {
+  const ranges = config?.scoring?.ranges || []
+  const matchedRange = ranges.find((range) => totalScore >= range.min && totalScore <= range.max)
+
+  if (matchedRange) {
+    return {
+      label: matchedRange.label,
+      color: matchedRange.color || '#18ab4b',
+      desc: matchedRange.description
+    }
+  }
+
+  return getPercentInterpretation(percent)
+}
+
+function computeMaxScore(config) {
+  if (!config || !Array.isArray(config.questions)) return 0
+  return config.questions.reduce((total, question) => {
+    const maxForQuestion = (question.options || []).reduce(
+      (max, option) => Math.max(max, typeof option.score === 'number' ? option.score : 0),
+      0
+    )
+    return total + maxForQuestion
+  }, 0)
+}
+
+function buildContextEntries(config, context) {
+  if (!context || typeof context !== 'object') return []
+  const fields = config?.contextFields || []
+
+  return fields.map((field) => {
+    const rawValue = context[field.id]
+
+    if (field.type === 'select') {
+      const matchingOption = (field.options || []).find((option) => option.value === rawValue)
+      return {
+        label: field.label,
+        value: matchingOption?.label || rawValue || '-'
+      }
+    }
+
+    if (field.type === 'textarea') {
+      return {
+        label: field.label,
+        value: rawValue && rawValue.trim().length > 0 ? rawValue : '-'
+      }
+    }
+
+    return {
+      label: field.label,
+      value: rawValue || '-'
+    }
+  })
+}
+
 // Function to save assessment data to Supabase
-async function saveAssessmentData(assessmentData, resultPercentage) {
+async function saveAssessmentData(assessmentData, meta = {}) {
   try {
     console.log('Preparing to save assessment data...')
-    
-    // Extract context data from assessment
-    const context = assessmentData.context || {}
-    
-    // Prepare the data payload
-    const payload = {
-      position: context.position || null,
-      experience: context.experience || null,
-      subject: context.subject || null,
-      aiKnowledge: context.aiKnowledge || null,
-      answers: assessmentData.answers || [],
-      resultPercentage: resultPercentage
+
+    const normaliseNumber = (value) => {
+      if (value === null || value === undefined) return null
+      const numericValue = Number(value)
+      return Number.isFinite(numericValue) ? numericValue : null
     }
-    
+
+    const context = assessmentData.context || {}
+    const answersDetailed = Array.isArray(assessmentData.answers) ? assessmentData.answers : []
+    const numericScoreArray = Array.isArray(assessmentData.numericScores) ? assessmentData.numericScores : []
+    const detailedAnswers = Array.isArray(assessmentData.detailedAnswers) ? assessmentData.detailedAnswers : []
+
+    const payload = {
+      configId: assessmentData.configId || DEFAULT_CONFIG_ID,
+      context,
+      answers: answersDetailed,
+      numericScores: numericScoreArray,
+      detailedAnswers,
+      totalScore: normaliseNumber(assessmentData.totalScore),
+      maxPossibleScore: normaliseNumber(assessmentData.maxPossibleScore),
+      resultPercentage: normaliseNumber(meta.resultPercentage),
+      interpretationLabel: meta.interpretationLabel || null,
+      interpretationDescription: meta.interpretationDescription || null
+    }
+
     console.log('Sending assessment data:', {
-      ...payload,
-      answersLength: payload.answers.length
+      configId: payload.configId,
+      answersLength: payload.answers.length,
+      numericScoresLength: payload.numericScores.length,
+      resultPercentage: payload.resultPercentage
     })
-    
-    // Call the API endpoint
+
     const response = await fetch('/api/save-assessment', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(`Failed to save assessment: ${errorData.error || response.statusText}`)
     }
-    
+
     const result = await response.json()
     console.log('Assessment saved successfully:', result.id)
-    
+
     return result
-    
   } catch (error) {
     console.error('Error saving assessment data:', error)
-    // Don't throw the error to avoid breaking the user experience
-    // Just log it for debugging purposes
   }
 }
 
@@ -99,6 +169,8 @@ export default function ResultsPage() {
   const [percent, setPercent] = useState(0)
   const [interpretation, setInterpretation] = useState(null)
   const [actionPlan, setActionPlan] = useState('')
+  const [configMeta, setConfigMeta] = useState(null)
+  const [contextSummary, setContextSummary] = useState([])
   const router = useRouter()
 
   useEffect(() => {
@@ -106,89 +178,92 @@ export default function ResultsPage() {
       try {
         // Load assessment data from localStorage
         const data = readAssessmentData()
-        if (!data || !Array.isArray(data.answers) || !Array.isArray(data.questions)) {
+        if (!data || (!Array.isArray(data.answers) && !Array.isArray(data.numericScores))) {
           setError('No assessment data found. Please complete the assessment first.')
           setLoading(false)
           return
         }
 
-        // Calculate overall score percentage
-        const totalScore = data.answers.reduce((sum, value) => sum + (parseInt(value, 10) || 0), 0)
-        const maxPossibleScore = data.questions.length * 4 // Max score per question is 4
-        const scorePercent = Math.round((totalScore / maxPossibleScore) * 100)
-        
-        // Set the interpretation first before using it in the prompt
-        const currentInterpretation = getInterpretation(scorePercent)
-        setAssessmentData(data)
-        setPercent(scorePercent)
-        setInterpretation(currentInterpretation)
+        const config = getAssessmentConfig(data.configId)
+        setConfigMeta(config)
 
-        // Prepare detailed answers for the prompt
-        const detailedAnswers = data.answers.map((score, index) => {
-          const question = data.questions[index] || { title: `Question ${index + 1}`, options: [] }
-          const selectedOption = question.options && question.options[Math.max(0, parseInt(score/2.1))] // Map the numeric score back to option index
-          
+        const numericScores = Array.isArray(data.numericScores)
+          ? data.numericScores
+          : Array.isArray(data.answers)
+            ? data.answers.map((entry) => {
+                if (typeof entry === 'number') return entry
+                if (entry && typeof entry === 'object' && typeof entry.score === 'number') return entry.score
+                return 0
+              })
+            : []
+
+        const totalScore = numericScores.reduce((sum, value) => sum + (Number(value) || 0), 0)
+        const maxPossibleScore = computeMaxScore(config)
+        const scorePercent = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0
+
+        const currentInterpretation = resolveInterpretation(config, totalScore, scorePercent)
+
+        const detailedAnswers = config.questions.map((question, index) => {
+          const answerEntry = Array.isArray(data.answers) ? data.answers[index] : null
+          const score = Number(numericScores[index]) || 0
+          let label = ''
+          let description = ''
+
+          if (answerEntry && typeof answerEntry === 'object') {
+            label = answerEntry.optionLabel || answerEntry.optionValue || ''
+            description = answerEntry.optionDescription || ''
+          }
+
+          const matchedOption = (question.options || []).find((option) => option.score === score)
+          if (!label && matchedOption) {
+            label = matchedOption.label
+            description = matchedOption.description || ''
+          }
+
+          if (!label) {
+            label = score > 0 ? `Score ${score}` : 'Not answered'
+          }
+
           return {
             question_number: index + 1,
-            question_title: question.title || `Question ${index + 1}`,
-            score: Number(score),
-            selected_option: selectedOption?.label || `Option ${score}`
+            question_title: question.title,
+            score,
+            selected_option: label,
+            option_description: description
           }
         })
 
-        // Get teacher context
-        const context = data.context || {}
-        const getContextValue = (key) => (context[key] || '-')
+        const contextEntries = buildContextEntries(config, data.context || {})
+        setContextSummary(contextEntries)
 
-        // Map context values to more readable format
-        const roleMap = {
-          'primary': 'Primary/Elementary Teacher',
-          'secondary': 'Secondary/High School Teacher',
-          'hod': 'Head of Department/Subject Lead',
-          'sen': 'SEN Coordinator/Learning Support Teacher',
-          'admin': 'School Leader/Administrator',
-          'trainee': 'Trainee Teacher/Early Career Teacher'
-        }
+        setAssessmentData({
+          ...data,
+          configId: config.id,
+          numericScores,
+          detailedAnswers,
+          totalScore,
+          maxPossibleScore
+        })
+        setPercent(scorePercent)
+        setInterpretation(currentInterpretation)
 
-        const experienceMap = {
-          'new': '0-2 years experience',
-          'developing': '3-7 years experience',
-          'experienced': '8-15 years experience',
-          'seasoned': '15+ years experience'
-        }
-
-        const subjectMap = {
-          'primary': 'Primary/Elementary (General)',
-          'english': 'English/Literacy',
-          'math': 'Mathematics/Numeracy',
-          'science': 'Science',
-          'humanities': 'Humanities',
-          'arts': 'Arts & Design',
-          'pe': 'Physical Education',
-          'ict': 'ICT/Computer Science',
-          'vocational': 'Vocational Subjects',
-          'sen': 'Special Educational Needs'
-        }
-
-        const aiKnowledgeMap = {
-          'minimal': 'Minimal - Limited exposure',
-          'basic': 'Basic - General awareness',
-          'intermediate': 'Intermediate - Some hands-on experience',
-          'advanced': 'Advanced - Regular use'
-        }
+        const contextLines = contextEntries.length
+          ? contextEntries.map((entry) => `- ${entry.label}: ${entry.value}`).join('\n')
+          : '- Context not provided'
 
         // Build the prompt for GPT
-        const prompt = `You are an expert AI Teaching Coach. Produce a concise, practical, and encouraging personalised action plan for a teacher. Use HTML headings and lists as in the structure below. Tone: supportive, jargon-free.
+        const prompt = `You are an expert AI Teaching Coach. ${config.analysisPrompt}
+
+Assessment configuration: ${config.name}
 
 Teacher context:
-- Role: ${roleMap[getContextValue('position')] || getContextValue('position')}
-- Experience: ${experienceMap[getContextValue('experience')] || getContextValue('experience')}
-- Subject: ${subjectMap[getContextValue('subject')] || getContextValue('subject')}
-- Current AI Knowledge: ${aiKnowledgeMap[getContextValue('aiKnowledge')] || getContextValue('aiKnowledge')}
+${contextLines}
 
 Assessment summary:
-Overall percentage: ${scorePercent}%
-Overall level: ${currentInterpretation.label}
+- Raw score: ${totalScore} out of ${maxPossibleScore}
+- Percentage: ${scorePercent}%
+- Profile: ${currentInterpretation.label}
+
 Detailed answers:
 ${JSON.stringify(detailedAnswers, null, 2)}
 
@@ -217,7 +292,7 @@ Respond only with HTML content (no surrounding commentary) using this structure 
   <li><strong>Title for suggestion 3:</strong> <br>What to do: Brief practical step. <br>Why it helps: Brief benefit explanation.</li>
 </ul>
 
-Each list item should include a short title, "What to do:" and "Why it helps:". Keep content actionable and specific to the teacher's context and the provided detailed answers.`
+Each list item should include a short title, "What to do:" and "Why it helps:". Keep content actionable and specific to the provided context and detailed answers.`
 
         try {
           // Call the GPT-4o API through the backend proxy
@@ -244,7 +319,22 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
           setActionPlan(content)
 
           // Save assessment data to Supabase
-          await saveAssessmentData(data, scorePercent)
+          await saveAssessmentData(
+            {
+              ...data,
+              configId: config.id,
+              numericScores,
+              detailedAnswers,
+              totalScore,
+              maxPossibleScore,
+              context: data.context || {}
+            },
+            {
+              resultPercentage: scorePercent,
+              interpretationLabel: currentInterpretation.label,
+              interpretationDescription: currentInterpretation.desc
+            }
+          )
         } catch (err) {
           console.error('Error calling GPT API:', err)
           setError(`Failed to generate action plan: ${err.message || 'Unknown error'}`)
@@ -263,7 +353,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
 
   // Generate personalized learning path table
   function generateLearningPath() {
-    if (!assessmentData) return ''
+    if (!assessmentData || assessmentData.configId !== DEFAULT_CONFIG_ID) return ''
     
     const context = assessmentData.context || {}
     
@@ -618,17 +708,17 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         </tbody>
       </table>
       
-      <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+      <div style="margin-top: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px;">
         <h4 style="margin-top: 0; color: #18ab4b;">📈 Your Progress Path</h4>
         <p style="margin-bottom: 5px;"><strong>All Levels Available:</strong></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           ${[1,2,3,4].map(level => `
-            <span style="padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; ${level === userLevel ? 'background: #18ab4b; color: white; font-weight: bold;' : 'background: rgba(255,255,255,0.1); color: #ccc;'}">
+            <span style="padding: 5px 12px; border-radius: 15px; font-size: 0.9rem; ${level === userLevel ? 'background: #18ab4b; color: white; font-weight: bold;' : 'background: #e2e8f0; color: #475569;'}">
               Level ${level} ${level === userLevel ? '(Current)' : ''}
             </span>
           `).join('')}
         </div>
-        <p style="margin-top: 10px; font-size: 0.9rem; color: #ccc;">
+        <p style="margin-top: 10px; font-size: 0.9rem; color: #475569;">
           Complete your current level activities and retake the assessment to progress to the next level.
         </p>
       </div>
@@ -643,12 +733,15 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       return
     }
 
+    const reportTitle = configMeta ? `${configMeta.name} Assessment Report` : 'AI Teacher Assessment Report'
+    const filePrefix = configMeta ? `${configMeta.id}-assessment-report` : 'ai-teacher-assessment-report'
+
     // Build complete HTML report
     const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AI Teacher Assessment Report</title>
+  <title>${reportTitle}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @font-face {
@@ -660,38 +753,40 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
     }
     body {
       font-family: 'TodaySB Regular', Arial, sans-serif;
-      background-color: #171717;
-      color: #e0e0e0;
+      background: linear-gradient(135deg, #f0fff4 0%, #e8fdf2 100%);
+      color: #1f2937;
       line-height: 1.6;
       padding: 20px;
       max-width: 800px;
       margin: 0 auto;
     }
     h1, h2, h3, h4 {
-      color: #fff;
+      color: #0f172a;
       margin-top: 1.5em;
     }
     .report-header {
       text-align: center;
       margin-bottom: 30px;
       padding: 20px;
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
       border-radius: 10px;
+      border: 1px solid #d0dae7;
     }
     .score-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
       padding: 20px;
       border-radius: 10px;
+      border: 1px solid #d0dae7;
       margin-bottom: 30px;
     }
     .score-circle {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: conic-gradient(${interpretation.color} ${percent * 3.6}deg, #333 ${percent * 3.6}deg);
+      background: conic-gradient(${interpretation.color} ${percent * 3.6}deg, #dbe2ef ${percent * 3.6}deg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -701,26 +796,28 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background: #171717;
+      background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2rem;
       font-weight: bold;
       color: ${interpretation.color};
+      box-shadow: inset 0 0 0 1px #e2e8f0;
     }
     .interpretation {
       flex: 1;
       padding-left: 30px;
     }
     .action-plan {
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
+      border: 1px solid #d0dae7;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 30px;
     }
     .action-plan h3 {
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(15,23,42,0.12);
       padding-bottom: 10px;
     }
     .action-plan ul {
@@ -730,19 +827,20 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       margin-bottom: 15px;
     }
     .comprehensive-analysis {
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
+      border: 1px solid #d0dae7;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 30px;
     }
     .comprehensive-analysis h3 {
-      color: #18ab4b;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: #0f5132;
+      border-bottom: 1px solid rgba(15,23,42,0.12);
       padding-bottom: 10px;
       margin-top: 20px;
     }
     .comprehensive-analysis h4 {
-      color: #f5a623;
+      color: #92400e;
       margin-top: 25px;
       margin-bottom: 15px;
     }
@@ -758,14 +856,15 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       text-align: justify;
     }
     .learning-path {
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
+      border: 1px solid #d0dae7;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 30px;
     }
     .learning-path h3 {
-      color: #18ab4b;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: #0f5132;
+      border-bottom: 1px solid rgba(15,23,42,0.12);
       padding-bottom: 10px;
       margin-top: 0;
       margin-bottom: 15px;
@@ -777,21 +876,21 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
     }
     .pathway-table th,
     .pathway-table td {
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid #dbe2ef;
       padding: 12px;
       text-align: left;
       vertical-align: top;
     }
     .pathway-table th {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
+      background: #e2e8f0;
+      color: #0f172a;
       font-weight: 600;
     }
     .pathway-table td {
-      background: rgba(255,255,255,0.03);
+      background: #fff;
     }
     .pathway-table tr:nth-child(even) td {
-      background: rgba(255,255,255,0.08);
+      background: #f8fafc;
     }
     .pathway-table a {
       color: #18ab4b;
@@ -802,20 +901,21 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       text-decoration: none;
     }
     .implementation-strategies {
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
+      border: 1px solid #d0dae7;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 30px;
     }
     .implementation-strategies h2 {
-      color: #18ab4b;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: #0f5132;
+      border-bottom: 1px solid rgba(15,23,42,0.12);
       padding-bottom: 10px;
       margin-top: 0;
       margin-bottom: 20px;
     }
     .implementation-strategies h3 {
-      color: #f5a623;
+      color: #92400e;
       margin-top: 25px;
       margin-bottom: 15px;
     }
@@ -831,20 +931,21 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
       text-align: justify;
     }
     .institutional-framework {
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
+      border: 1px solid #d0dae7;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 30px;
     }
     .institutional-framework h2 {
-      color: #18ab4b;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: #0f5132;
+      border-bottom: 1px solid rgba(15,23,42,0.12);
       padding-bottom: 10px;
       margin-top: 0;
       margin-bottom: 20px;
     }
     .institutional-framework h3 {
-      color: #f5a623;
+      color: #92400e;
       margin-top: 25px;
       margin-bottom: 15px;
     }
@@ -878,7 +979,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
 </head>
 <body>
   <div class="report-header">
-    <h1>AI Teacher Assessment Report</h1>
+    <h1>${reportTitle}</h1>
     <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
   </div>
   
@@ -1003,11 +1104,11 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
 </html>`
 
     // Create a downloadable file
-    const blob = new Blob([html], { type: 'text/html' })
+  const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `ai-teacher-assessment-report-${new Date().toISOString().slice(0, 10)}.html`
+  a.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.html`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -1027,7 +1128,9 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
   return (
     <>
       <Head>
-        <title>Assessment Results - AI Teacher Assessment</title>
+        <title>
+          {configMeta ? `${configMeta.name} Assessment Results` : 'Assessment Results - AI Teacher Assessment'}
+        </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
@@ -1037,8 +1140,12 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         </div>
         
         <div className="assessment-card results-card">
-          <h1 className="assessment-title">Your AI Teacher Assessment Results</h1>
-          <p className="assessment-subtitle">Your personalised analysis and action plan.</p>
+          <h1 className="assessment-title">
+            {configMeta ? `${configMeta.name} Results` : 'Your AI Teacher Assessment Results'}
+          </h1>
+          <p className="assessment-subtitle">
+            {configMeta ? `Your personalised analysis and action plan for ${configMeta.name}.` : 'Your personalised analysis and action plan.'}
+          </p>
           <hr className="assessment-divider" />
           
           {loading ? (
@@ -1061,7 +1168,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
                 <div 
                   className="score-circle" 
                   style={{ 
-                    background: `conic-gradient(${interpretation.color} ${percent * 3.6}deg, rgba(255,255,255,0.08) ${percent * 3.6}deg)` 
+                    background: `conic-gradient(${interpretation.color} ${percent * 3.6}deg, rgba(226,232,240,0.9) ${percent * 3.6}deg)` 
                   }}
                 >
                   <div className="score-inner">
@@ -1075,6 +1182,17 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
                 <h2 style={{ color: interpretation.color }}>{interpretation.label}</h2>
                 <p>{interpretation.desc}</p>
               </div>
+
+              {contextSummary.length > 0 && (
+                <div className="assessment-welcome">
+                  <h3 className="assessment-welcome-title">Assessment Context</h3>
+                  {contextSummary.map((entry, index) => (
+                    <p key={`${entry.label}-${index}`} className="assessment-welcome-para">
+                      <strong>{entry.label}:</strong> {entry.value}
+                    </p>
+                  ))}
+                </div>
+              )}
               
               {/* Action Plan */}
               <div className="action-plan-container">
@@ -1116,7 +1234,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         }
         
         .loading-spinner {
-          border: 4px solid rgba(255,255,255,0.1);
+          border: 4px solid rgba(226,232,240,0.7);
           border-radius: 50%;
           border-top: 4px solid #18ab4b;
           width: 50px;
@@ -1152,23 +1270,24 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 0 20px rgba(0,0,0,0.3);
+          box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
         }
         
         .score-inner {
           width: 170px;
           height: 170px;
           border-radius: 50%;
-          background: #222;
+          background: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: inset 0 0 0 1px #e2e8f0;
         }
         
         .score-percent {
           font-size: 3.5rem;
           font-weight: 800;
-          color: #fff;
+          color: #0f172a;
         }
         
         .interpretation-container {
@@ -1182,29 +1301,31 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         }
         
         .action-plan-container {
-          background: rgba(255,255,255,0.08);
+          background: #f1f5f9;
+          border: 1px solid #d0dae7;
           border-radius: 12px;
           padding: 30px;
           margin-bottom: 40px;
+          box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
         }
         
         .action-plan-container h2 {
           text-align: center;
           margin-top: 0;
           margin-bottom: 20px;
-          color: #fff;
+          color: #0f172a;
         }
         
         .action-plan-content {
-          color: #e0e0e0;
+          color: #334155;
           text-align: left;
         }
         
         .action-plan-content h3 {
-          color: #fff;
+          color: #0f172a;
           font-size: 1.3rem;
           margin: 25px 0 10px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 1px solid rgba(15,23,42,0.08);
           padding-bottom: 10px;
         }
         
@@ -1221,7 +1342,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         }
         
         .action-plan-content strong {
-          color: #fff;
+          color: #0f5132;
         }
         
         .results-actions {
@@ -1233,8 +1354,8 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         }
         
         .assessment-btn.secondary {
-          background: rgba(255,255,255,0.1);
-          color: #fff;
+          background: #e2e8f0;
+          color: #0f172a;
         }
         
         @media (max-width: 600px) {
@@ -1268,31 +1389,40 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         
         .assessment-bg {
           min-height: 100vh;
-          background-color: #171717;
+          background: linear-gradient(180deg, rgba(240, 255, 244, 0.9) 0%, rgba(228, 253, 238, 0.92) 100%);
+          backdrop-filter: blur(6px);
           padding: 40px 20px;
         }
         
         .assessment-header {
           text-align: center;
           margin-bottom: 30px;
+          padding-top: 10px;
         }
         
         .defactoed-logo {
-          height: 60px;
+          width: 100%;
+          max-width: 676px;
+          height: auto;
           margin: 0 auto;
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+          object-fit: contain;
         }
         
         .assessment-card {
-          background-color: #222;
+          background-color: #fff;
           border-radius: 16px;
           padding: 40px;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+          border: 1px solid #e0e7f1;
           max-width: 800px;
           margin: 0 auto;
+          color: #0f172a;
         }
         
         .assessment-title {
-          color: #fff;
+          color: #0f172a;
           font-size: 2.2rem;
           font-weight: 800;
           margin: 0 0 10px 0;
@@ -1300,7 +1430,7 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         }
         
         .assessment-subtitle {
-          color: #e0e0e0;
+          color: #475569;
           font-size: 1.1rem;
           margin-top: 0;
           margin-bottom: 20px;
@@ -1310,12 +1440,12 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
         .assessment-divider {
           border: 0;
           height: 1px;
-          background: rgba(255,255,255,0.1);
+          background: #e2e8f0;
           margin: 20px 0;
         }
         
         .assessment-btn {
-          background: #18ab4b;
+          background: linear-gradient(90deg, #18ab4b 0%, #16a048 100%);
           color: #fff;
           border: none;
           border-radius: 8px;
@@ -1323,17 +1453,20 @@ Each list item should include a short title, "What to do:" and "Why it helps:". 
           font-size: 1rem;
           font-weight: 700;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: background 0.2s, box-shadow 0.2s;
           display: inline-block;
           text-align: center;
+          box-shadow: 0 12px 24px rgba(24, 171, 75, 0.18);
         }
         
         .assessment-btn:hover {
-          background: #139b41;
+          background: linear-gradient(90deg, #16a048 0%, #149543 100%);
+          box-shadow: 0 14px 28px rgba(24, 171, 75, 0.22);
         }
         
         .assessment-btn:disabled {
-          background: rgba(24, 171, 75, 0.5);
+          background: #ccf2dc;
+          color: #0f172a;
           cursor: not-allowed;
         }
         

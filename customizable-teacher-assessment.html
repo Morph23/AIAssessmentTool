@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable AI Teacher Assessment</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border: #e5e7eb;
+            --neutral-600: #4b5563;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .client-selector {
+            padding: 30px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .client-selector h3 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .client-selector select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .client-selector button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .client-selector button:hover {
+            background: var(--primary-dark);
+        }
+
+        .progress-container {
+            padding: 20px 30px;
+            background: var(--bg-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar.active::before {
+            width: var(--progress-width, 0%);
+        }
+
+        .step {
+            padding: 40px;
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .question {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .question h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-600);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .results {
+            text-align: center;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+        }
+
+        .score-number {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .score-label {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .analysis {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .analysis h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .analysis p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .step {
+                padding: 20px;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1 id="main-title">Customizable AI Teacher Assessment</h1>
+                <p id="main-subtitle">Select a configuration to begin</p>
+            </div>
+            
+            <div class="client-selector">
+                <h3>Select Assessment Configuration</h3>
+                <select id="config-selector">
+                    <option value="">Choose a configuration...</option>
+                    <option value="ai4schools">AI4Schools - Teacher AI Readiness</option>
+                    <option value="science-dept">Science Department - AI Integration</option>
+                    <option value="humanities-dept">Humanities - Digital Literacy</option>
+                    <option value="leadership">School Leadership - AI Strategy</option>
+                </select>
+                <button onclick="loadConfiguration()">Load Assessment</button>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+            
+            <div id="assessment-container">
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <h3>Select a configuration above to load your assessment</h3>
+                    <p>Each configuration provides a different set of questions, scoring, and analysis tailored to specific needs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = null;
+        let currentStep = 0;
+        const answers = {};
+        const personalContext = {};
+        let aiAnalysis = '';
+
+        // Configuration loading function
+        function loadConfiguration() {
+            const configSelector = document.getElementById('config-selector');
+            const selectedConfig = configSelector.value;
+            
+            if (!selectedConfig) {
+                alert('Please select a configuration first.');
+                return;
+            }
+
+            try {
+                // Load configuration from embedded configs
+                currentConfig = getEmbeddedConfig(selectedConfig);
+                if (!currentConfig) {
+                    throw new Error('Configuration not found');
+                }
+                
+                initializeAssessment();
+                
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+                alert('Error loading configuration. Please try again.');
+            }
+        }
+
+        // Get embedded configuration
+        function getEmbeddedConfig(configName) {
+            const configs = {
+                'ai4schools': {
+                    title: "AI4Schools - Teacher AI Readiness Assessment",
+                    subtitle: "Evaluate your readiness to integrate AI tools in the classroom",
+                    welcome: {
+                        title: "Welcome to the AI4Schools Teacher Assessment",
+                        description: "This assessment will help you understand your current level of AI readiness and provide personalized recommendations for professional development. The assessment covers key areas including AI awareness, practical application, ethical considerations, and future planning."
+                    },
+                    personalContext: [
+                        {
+                            id: "experience",
+                            label: "Years of Teaching Experience",
+                            type: "select",
+                            options: ["0-2 years", "3-5 years", "6-10 years", "11-15 years", "16+ years"]
+                        },
+                        {
+                            id: "subject",
+                            label: "Primary Subject Area",
+                            type: "select",
+                            options: ["Mathematics", "Science", "English/Language Arts", "Social Studies", "Arts", "Physical Education", "Technology", "Other"]
+                        },
+                        {
+                            id: "ai_exposure",
+                            label: "Previous AI Training or Experience",
+                            type: "textarea",
+                            placeholder: "Describe any previous training, workshops, or practical experience with AI tools in education..."
+                        }
+                    ],
+                    assessment: [
+                        {
+                            question: "How would you rate your understanding of AI and its potential applications in education?",
+                            options: [
+                                { text: "No understanding - I'm not familiar with AI concepts", score: 1 },
+                                { text: "Basic understanding - I know what AI is but not how to use it", score: 2 },
+                                { text: "Moderate understanding - I can explain AI concepts and see some applications", score: 3 },
+                                { text: "Good understanding - I can identify multiple AI applications in education", score: 4 },
+                                { text: "Expert understanding - I can design and implement AI-enhanced lessons", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "How comfortable are you with using digital tools and technology in your classroom?",
+                            options: [
+                                { text: "Very uncomfortable - I prefer traditional methods", score: 1 },
+                                { text: "Somewhat uncomfortable - I use basic tools when necessary", score: 2 },
+                                { text: "Neutral - I use technology regularly but don't seek new tools", score: 3 },
+                                { text: "Comfortable - I actively integrate various digital tools", score: 4 },
+                                { text: "Very comfortable - I'm always exploring new educational technology", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "What is your current approach to lesson planning and content creation?",
+                            options: [
+                                { text: "Traditional methods only - textbooks and printed materials", score: 1 },
+                                { text: "Basic digital tools - Word documents, PowerPoint presentations", score: 2 },
+                                { text: "Mixed approach - traditional and digital resources", score: 3 },
+                                { text: "Digital-first - I primarily use digital tools and online resources", score: 4 },
+                                { text: "Innovative integration - I combine multiple digital tools and AI resources", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "How do you currently assess student learning and provide feedback?",
+                            options: [
+                                { text: "Traditional methods only - tests, quizzes, written feedback", score: 1 },
+                                { text: "Basic digital tools - online quizzes, digital gradebooks", score: 2 },
+                                { text: "Mixed approach - traditional and digital assessment methods", score: 3 },
+                                { text: "Digital assessment - I use various digital tools for assessment", score: 4 },
+                                { text: "AI-enhanced assessment - I use AI tools for personalized feedback and analysis", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "What is your understanding of AI ethics and responsible use in education?",
+                            options: [
+                                { text: "No understanding - I haven't considered AI ethics", score: 1 },
+                                { text: "Basic awareness - I know there are ethical considerations", score: 2 },
+                                { text: "Moderate understanding - I can identify key ethical issues", score: 3 },
+                                { text: "Good understanding - I actively consider ethics in technology use", score: 4 },
+                                { text: "Expert understanding - I can teach students about AI ethics", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "How do you currently differentiate instruction for diverse learners?",
+                            options: [
+                                { text: "Limited differentiation - I teach to the middle of the class", score: 1 },
+                                { text: "Basic differentiation - I adjust for obvious learning differences", score: 2 },
+                                { text: "Moderate differentiation - I use various strategies for different learners", score: 3 },
+                                { text: "Good differentiation - I regularly adapt content and methods", score: 4 },
+                                { text: "Advanced differentiation - I use data and tools for personalized learning", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "What is your approach to professional development and staying current with educational trends?",
+                            options: [
+                                { text: "Minimal engagement - I attend required training only", score: 1 },
+                                { text: "Basic engagement - I attend some optional workshops", score: 2 },
+                                { text: "Moderate engagement - I seek out relevant professional development", score: 3 },
+                                { text: "Active engagement - I regularly participate in PD and conferences", score: 4 },
+                                { text: "Leadership engagement - I lead PD sessions and stay ahead of trends", score: 5 }
+                            ],
+                        },
+                        {
+                            question: "How do you currently use data to inform your teaching decisions?",
+                            options: [
+                                { text: "No data use - I rely on intuition and experience", score: 1 },
+                                { text: "Basic data use - I look at test scores and grades", score: 2 },
+                                { text: "Moderate data use - I analyze various forms of student data", score: 3 },
+                                { text: "Good data use - I regularly use data to adjust instruction", score: 4 },
+                                { text: "Advanced data use - I use comprehensive data analysis and AI insights", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "What is your comfort level with experimenting with new teaching methods?",
+                            options: [
+                                { text: "Very uncomfortable - I prefer proven, traditional methods", score: 1 },
+                                { text: "Somewhat uncomfortable - I try new things occasionally", score: 2 },
+                                { text: "Neutral - I'm open to new methods when they make sense", score: 3 },
+                                { text: "Comfortable - I regularly try new approaches and tools", score: 4 },
+                                { text: "Very comfortable - I actively experiment and innovate", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "How do you envision AI enhancing your teaching practice in the next 2-3 years?",
+                            options: [
+                                { text: "No vision - I don't see AI as relevant to my teaching", score: 1 },
+                                { text: "Limited vision - I see AI as a tool for basic tasks", score: 2 },
+                                { text: "Moderate vision - I can see several ways AI could help", score: 3 },
+                                { text: "Clear vision - I have specific plans for AI integration", score: 4 },
+                                { text: "Advanced vision - I'm already planning and implementing AI-enhanced lessons", score: 5 }
+                            ]
+                        }
+                    ],
+                    scoring: {
+                        ranges: [
+                            { min: 10, max: 20, label: "AI Beginner", description: "You're just starting your AI journey. Focus on building foundational knowledge and comfort with digital tools." },
+                            { min: 21, max: 30, label: "AI Explorer", description: "You have basic AI awareness and are ready to explore practical applications in your classroom." },
+                            { min: 31, max: 40, label: "AI Practitioner", description: "You're actively using AI tools and have a solid foundation for further development." },
+                            { min: 41, max: 50, label: "AI Innovator", description: "You're leading AI integration in your classroom and can mentor others." }
+                        ]
+                    },
+                    analysisPrompt: "Based on the assessment results and personal context, provide a comprehensive analysis including: 1) Key strengths and areas for growth, 2) Specific AI tools and resources to explore, 3) Professional development recommendations, 4) Practical next steps for classroom implementation, 5) Long-term AI integration strategy. Make the analysis encouraging and actionable."
+                },
+                'science-dept': {
+                    title: "Science Department - AI Integration Assessment",
+                    subtitle: "Evaluate AI readiness for science education",
+                    welcome: {
+                        title: "Science Department AI Integration Assessment",
+                        description: "This assessment focuses on AI tools and applications specifically relevant to science education, including data analysis, virtual labs, and scientific inquiry support."
+                    },
+                    personalContext: [
+                        {
+                            id: "science_subject",
+                            label: "Science Subject Taught",
+                            type: "select",
+                            options: ["Biology", "Chemistry", "Physics", "Earth Science", "General Science", "Other"]
+                        },
+                        {
+                            id: "lab_experience",
+                            label: "Laboratory Teaching Experience",
+                            type: "select",
+                            options: ["No lab experience", "Basic lab setup", "Regular lab sessions", "Advanced lab work", "Lab coordinator"]
+                        }
+                    ],
+                    assessment: [
+                        {
+                            question: "How familiar are you with AI-powered data analysis tools for scientific data?",
+                            options: [
+                                { text: "Not familiar at all", score: 1 },
+                                { text: "Somewhat familiar", score: 2 },
+                                { text: "Moderately familiar", score: 3 },
+                                { text: "Very familiar", score: 4 },
+                                { text: "Expert level", score: 5 }
+                            ]
+                        },
+                        {
+                            question: "How do you currently use technology in science demonstrations?",
+                            options: [
+                                { text: "No technology use", score: 1 },
+                                { text: "Basic presentations", score: 2 },
+                                { text: "Interactive simulations", score: 3 },
+                                { text: "Virtual labs", score: 4 },
+                                { text: "AI-enhanced simulations", score: 5 }
+                            ]
+                        }
+                    ],
+                    scoring: {
+                        ranges: [
+                            { min: 2, max: 4, label: "Science Tech Beginner", description: "Start with basic digital tools for science demonstrations." },
+                            { min: 5, max: 8, label: "Science Tech Explorer", description: "Explore virtual labs and data analysis tools." },
+                            { min: 9, max: 10, label: "Science Tech Innovator", description: "Lead AI integration in science education." }
+                        ]
+                    },
+                    analysisPrompt: "Provide science-specific AI integration recommendations focusing on virtual labs, data analysis, and scientific inquiry support."
+                },
+                'humanities-dept': {
+                    title: "Humanities - Digital Literacy Assessment",
+                    subtitle: "Evaluate digital literacy and AI readiness for humanities",
+                    welcome: {
+                        title: "Humanities Digital Literacy Assessment",
+                        description: "This assessment focuses on digital tools and AI applications relevant to humanities education, including writing support, research tools, and creative expression."
+                    },
+                    personalContext: [
+                        {
+                            id: "humanities_subject",
+                            label: "Humanities Subject",
+                            type: "select",
+                            options: ["English", "History", "Literature", "Philosophy", "Arts", "Other"]
+                        }
+                    ],
+                    assessment: [
+                        {
+                            question: "How do you currently use digital tools for writing and research?",
+                            options: [
+                                { text: "Traditional methods only", score: 1 },
+                                { text: "Basic word processing", score: 2 },
+                                { text: "Online research tools", score: 3 },
+                                { text: "Digital collaboration tools", score: 4 },
+                                { text: "AI-enhanced writing tools", score: 5 }
+                            ]
+                        }
+                    ],
+                    scoring: {
+                        ranges: [
+                            { min: 1, max: 2, label: "Digital Humanities Beginner", description: "Start with basic digital research and writing tools." },
+                            { min: 3, max: 4, label: "Digital Humanities Explorer", description: "Explore AI writing assistants and research tools." },
+                            { min: 5, max: 5, label: "Digital Humanities Innovator", description: "Lead digital transformation in humanities." }
+                        ]
+                    },
+                    analysisPrompt: "Provide humanities-specific digital literacy recommendations focusing on writing support, research tools, and creative expression."
+                },
+                'leadership': {
+                    title: "School Leadership - AI Strategy Assessment",
+                    subtitle: "Evaluate AI strategy and leadership readiness",
+                    welcome: {
+                        title: "School Leadership AI Strategy Assessment",
+                        description: "This assessment focuses on AI strategy development, staff development planning, and organizational change management for school leaders."
+                    },
+                    personalContext: [
+                        {
+                            id: "leadership_role",
+                            label: "Leadership Role",
+                            type: "select",
+                            options: ["Department Head", "Assistant Principal", "Principal", "Curriculum Coordinator", "Technology Director", "Other"]
+                        }
+                    ],
+                    assessment: [
+                        {
+                            question: "How would you rate your understanding of AI's impact on education?",
+                            options: [
+                                { text: "Limited understanding", score: 1 },
+                                { text: "Basic awareness", score: 2 },
+                                { text: "Moderate understanding", score: 3 },
+                                { text: "Good understanding", score: 4 },
+                                { text: "Expert understanding", score: 5 }
+                            ]
+                        }
+                    ],
+                    scoring: {
+                        ranges: [
+                            { min: 1, max: 2, label: "AI Strategy Beginner", description: "Focus on building AI awareness and understanding." },
+                            { min: 3, max: 4, label: "AI Strategy Developer", description: "Develop comprehensive AI integration plans." },
+                            { min: 5, max: 5, label: "AI Strategy Leader", description: "Lead AI transformation in your school." }
+                        ]
+                    },
+                    analysisPrompt: "Provide leadership-focused recommendations for AI strategy development, staff development, and organizational change management."
+                }
+            };
+            
+            return configs[configName] || null;
+        }
+
+        // Initialize assessment with selected configuration
+        function initializeAssessment() {
+            if (!currentConfig) {
+                console.error('No configuration loaded');
+                return;
+            }
+
+            // Update page title and header
+            document.getElementById('main-title').textContent = currentConfig.title;
+            document.getElementById('main-subtitle').textContent = currentConfig.subtitle;
+
+            // Generate welcome step
+            generateWelcomeStep();
+
+            // Generate question steps
+            generateQuestionSteps();
+
+            // Show first step
+            showStep(0);
+        }
+
+        // Generate welcome step
+        function generateWelcomeStep() {
+            const container = document.getElementById('assessment-container');
+            
+            const welcomeHTML = `
+                <div class="step active" id="step-0">
+                    <h2>${currentConfig.welcome.title}</h2>
+                    <p>${currentConfig.welcome.description}</p>
+                    
+                    ${currentConfig.personalContext.map((field, index) => `
+                        <div class="form-group">
+                            <label for="${field.id}">${field.label}</label>
+                            ${field.type === 'select' ? `
+                                <select id="${field.id}" onchange="updatePersonalContext('${field.id}', this.value)">
+                                    <option value="">Select...</option>
+                                    ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                                </select>
+                            ` : field.type === 'textarea' ? `
+                                <textarea id="${field.id}" placeholder="${field.placeholder || ''}" onchange="updatePersonalContext('${field.id}', this.value)"></textarea>
+                            ` : `
+                                <input type="text" id="${field.id}" placeholder="${field.placeholder || ''}" onchange="updatePersonalContext('${field.id}', this.value)">
+                            `}
+                        </div>
+                    `).join('')}
+                    
+                    <div class="btn-container">
+                        <div></div>
+                        <button class="btn btn-primary" onclick="nextStep()">Start Assessment</button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = welcomeHTML;
+        }
+
+        // Generate question steps
+        function generateQuestionSteps() {
+            const container = document.getElementById('assessment-container');
+            
+            currentConfig.assessment.forEach((questionData, index) => {
+                const questionHTML = `
+                    <div class="step" id="step-${index + 1}">
+                        <div class="question">
+                            <h3>Question ${index + 1}</h3>
+                            <p>${questionData.question}</p>
+                            
+                            <div class="options">
+                                ${questionData.options.map((option, optionIndex) => `
+                                    <label class="option" onclick="selectOption(${index + 1}, ${optionIndex})">
+                                        <input type="radio" name="q${index + 1}" value="${option.score}">
+                                        <span>${option.text}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="btn-container">
+                            <button class="btn btn-secondary" onclick="previousStep()" ${index === 0 ? 'style="visibility: hidden;"' : ''}>Previous</button>
+                            <button class="btn btn-primary" onclick="nextStep()" ${index === currentConfig.assessment.length - 1 ? 'style="display: none;"' : ''}>Next</button>
+                            <button class="btn btn-success" onclick="showResults()" ${index === currentConfig.assessment.length - 1 ? '' : 'style="display: none;"'}>Complete Assessment</button>
+                        </div>
+                    </div>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', questionHTML);
+            });
+        }
+
+        // Update personal context
+        function updatePersonalContext(fieldId, value) {
+            personalContext[fieldId] = value;
+        }
+
+        // Select option for a question
+        function selectOption(questionIndex, optionIndex) {
+            const question = currentConfig.assessment[questionIndex - 1];
+            const option = question.options[optionIndex];
+            
+            // Clear previous selection
+            const options = document.querySelectorAll(`#step-${questionIndex} .option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Select new option
+            options[optionIndex].classList.add('selected');
+            
+            // Store answer
+            answers[`q${questionIndex}`] = option.score;
+            
+            // Update progress
+            updateProgress();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const totalQuestions = currentConfig.assessment.length;
+            const answeredQuestions = Object.keys(answers).length;
+            const progressPercentage = (answeredQuestions / totalQuestions) * 100;
+            
+            const progressBar = document.getElementById('progress');
+            progressBar.style.setProperty('--progress-width', `${progressPercentage}%`);
+            progressBar.classList.add('active');
+        }
+
+        // Show specific step
+        function showStep(stepIndex) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.remove('active');
+                if (index === stepIndex) {
+                    step.classList.add('active');
+                }
+            });
+            currentStep = stepIndex;
+        }
+
+        // Next step
+        function nextStep() {
+            if (currentStep < currentConfig.assessment.length) {
+                showStep(currentStep + 1);
+            }
+        }
+
+        // Previous step
+        function previousStep() {
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        // Show results
+        function showResults() {
+            const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
+            const maxScore = currentConfig.assessment.length * 5;
+            
+            // Find score range
+            const scoreRange = currentConfig.scoring.ranges.find(range => 
+                totalScore >= range.min && totalScore <= range.max
+            ) || currentConfig.scoring.ranges[0];
+            
+            // Generate AI analysis
+            generateAIAnalysis(totalScore, scoreRange);
+            
+            const resultsHTML = `
+                <div class="step active" id="results">
+                    <h2>Assessment Complete!</h2>
+                    
+                    <div class="score-display">
+                        <div class="score-number">${totalScore}</div>
+                        <div class="score-label">out of ${maxScore}</div>
+                    </div>
+                    
+                    <h3>Your Profile: ${scoreRange.label}</h3>
+                    <p>${scoreRange.description}</p>
+                    
+                    <div class="analysis" id="ai-analysis">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Generating personalized analysis...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button class="btn btn-primary" onclick="restartAssessment()">Take Assessment Again</button>
+                        <button class="btn btn-success" onclick="downloadReport()">Download Report</button>
+                    </div>
+                </div>
+            `;
+            
+            // Replace current step with results
+            const currentStepElement = document.querySelector('.step.active');
+            currentStepElement.outerHTML = resultsHTML;
+        }
+
+        // Generate AI analysis
+        function generateAIAnalysis(totalScore, scoreRange) {
+            // For now, use a fallback analysis
+            // In production, this would call an AI API
+            setTimeout(() => {
+                const analysis = generateFallbackAnalysis(totalScore, scoreRange);
+                document.getElementById('ai-analysis').innerHTML = `
+                    <h3>Personalized Analysis</h3>
+                    ${analysis}
+                `;
+            }, 2000);
+        }
+
+        // Fallback analysis generation
+        function generateFallbackAnalysis(totalScore, scoreRange) {
+            const maxScore = currentConfig.assessment.length * 5;
+            const percentage = (totalScore / maxScore) * 100;
+            
+            let analysis = `<p><strong>Congratulations on completing the assessment!</strong></p>`;
+            analysis += `<p>Your score of ${totalScore} out of ${maxScore} (${percentage.toFixed(1)}%) places you in the <strong>${scoreRange.label}</strong> category.</p>`;
+            
+            if (scoreRange.label.includes('Beginner')) {
+                analysis += `<p><strong>Key Strengths:</strong> You're taking the first step toward AI integration, which shows openness to growth.</p>`;
+                analysis += `<p><strong>Areas for Growth:</strong> Focus on building foundational knowledge and comfort with digital tools.</p>`;
+                analysis += `<p><strong>Next Steps:</strong> Start with basic AI awareness training and simple digital tool integration.</p>`;
+            } else if (scoreRange.label.includes('Explorer')) {
+                analysis += `<p><strong>Key Strengths:</strong> You have a solid foundation and are ready to explore practical applications.</p>`;
+                analysis += `<p><strong>Areas for Growth:</strong> Develop hands-on experience with AI tools and classroom integration.</p>`;
+                analysis += `<p><strong>Next Steps:</strong> Participate in AI tool workshops and begin small-scale classroom experiments.</p>`;
+            } else if (scoreRange.label.includes('Practitioner')) {
+                analysis += `<p><strong>Key Strengths:</strong> You're actively using AI tools and have valuable experience to share.</p>`;
+                analysis += `<p><strong>Areas for Growth:</strong> Expand your AI toolkit and mentor others in your department.</p>`;
+                analysis += `<p><strong>Next Steps:</strong> Explore advanced AI applications and lead department-wide AI initiatives.</p>`;
+            } else {
+                analysis += `<p><strong>Key Strengths:</strong> You're a leader in AI integration and can inspire others.</p>`;
+                analysis += `<p><strong>Areas for Growth:</strong> Focus on scaling your expertise and supporting organizational change.</p>`;
+                analysis += `<p><strong>Next Steps:</strong> Lead professional development sessions and develop school-wide AI strategies.</p>`;
+            }
+            
+            analysis += `<p><strong>Professional Development Recommendations:</strong></p>`;
+            analysis += `<ul><li>Attend AI in education conferences and workshops</li>`;
+            analysis += `<li>Join online communities focused on AI integration</li>`;
+            analysis += `<li>Experiment with new AI tools in your classroom</li>`;
+            analysis += `<li>Document and share your experiences with colleagues</li></ul>`;
+            
+            return analysis;
+        }
+
+        // Download report
+        function downloadReport() {
+            const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
+            const maxScore = currentConfig.assessment.length * 5;
+            const scoreRange = currentConfig.scoring.ranges.find(range => 
+                totalScore >= range.min && totalScore <= range.max
+            ) || currentConfig.scoring.ranges[0];
+            
+            const reportContent = `
+Assessment Report: ${currentConfig.title}
+
+Personal Context:
+${Object.entries(personalContext).map(([key, value]) => `${key}: ${value}`).join('\n')}
+
+Assessment Results:
+Total Score: ${totalScore} out of ${maxScore}
+Profile: ${scoreRange.label}
+Description: ${scoreRange.description}
+
+Question Responses:
+${currentConfig.assessment.map((q, index) => `Q${index + 1}: ${q.question}\nResponse Score: ${answers[`q${index + 1}`] || 'Not answered'}`).join('\n\n')}
+
+Analysis:
+${document.getElementById('ai-analysis').textContent}
+
+Generated on: ${new Date().toLocaleDateString()}
+            `;
+            
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentConfig.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Restart assessment
+        function restartAssessment() {
+            // Reset all data
+            currentStep = 0;
+            Object.keys(answers).forEach(key => delete answers[key]);
+            Object.keys(personalContext).forEach(key => delete personalContext[key]);
+            aiAnalysis = '';
+            
+            // Reset progress bar
+            const progressBar = document.getElementById('progress');
+            progressBar.classList.remove('active');
+            progressBar.style.setProperty('--progress-width', '0%');
+            
+            // Show first step
+            showStep(0);
+        }
+    </script>
+</body>
+</html>

@@ -2,42 +2,48 @@
 
 
 import Head from 'next/head';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import { getAllAssessmentConfigs, DEFAULT_CONFIG_ID } from '../lib/assessmentConfigs';
 
 export default function Home() {
-  const [form, setForm] = useState({
-    position: '',
-    experience: '',
-    subject: '',
-    aiKnowledge: ''
-  });
   const router = useRouter();
-  const isComplete = form.position && form.experience && form.subject && form.aiKnowledge;
+  const allConfigs = useMemo(() => getAllAssessmentConfigs(), []);
+  const [selectedConfigId, setSelectedConfigId] = useState('');
+  const selectedConfig = useMemo(
+    () => allConfigs.find((config) => config.id === selectedConfigId) ?? null,
+    [allConfigs, selectedConfigId]
+  );
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isComplete) {
-      // Persist personal context so the assessment page can read it
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('assessmentMeta', JSON.stringify(form));
-        }
-      } catch (err) {
-        console.error('Failed to save assessment meta to localStorage', err);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = window.localStorage.getItem('selectedAssessmentConfig');
+      if (stored) {
+        setSelectedConfigId(stored);
       }
-      router.push('/assessment');
+    } catch (error) {
+      console.warn('Unable to read stored configuration', error);
     }
+  }, []);
+
+  const handleLoadAssessment = (event) => {
+    event.preventDefault();
+    const configId = selectedConfigId || DEFAULT_CONFIG_ID;
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedAssessmentConfig', configId);
+      }
+    } catch (err) {
+      console.error('Unable to store selected config in localStorage', err);
+    }
+    router.push('/assessment');
   };
 
   return (
     <>
       <Head>
-        <title>Personalised AI Teacher Assessment</title>
+        <title>Customisable AI Teacher Assessment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className="assessment-bg">
@@ -45,68 +51,56 @@ export default function Home() {
           <img src="/defatoed.png" alt="DEfactoED Logo" className="defactoed-logo" />
         </div>
         <div className="assessment-card">
-          <h1 className="assessment-title">Personalised AI Teacher Assessment</h1>
-          <p className="assessment-subtitle">Evaluate your readiness to incorporate AI into teaching activities.</p>
+          <h1 className="assessment-title">Customisable AI Teacher Assessment</h1>
+          <p className="assessment-subtitle">Select the configuration that best matches your context to unlock tailored insights.</p>
 
           <div className="assessment-welcome">
-            <h2 className="assessment-welcome-title">Welcome!</h2>
-            <p className="assessment-welcome-para">This assessment evaluates your AI readiness in teaching, providing a personalized development plan. Please tell us about your teaching background to customize your analysis.</p>
+            <h2 className="assessment-welcome-title">Start by choosing a configuration</h2>
+            <p className="assessment-welcome-para">
+              Each pathway mirrors the standalone assessment at your disposal. Pick the configuration that fits your role or department, then follow the prompts to capture context and complete the question set.
+            </p>
           </div>
-          <form className="assessment-form" onSubmit={handleSubmit} autoComplete="off">
+
+          <form className="assessment-form" onSubmit={handleLoadAssessment}>
             <div className="assessment-field">
-              <label htmlFor="position">Teaching Position</label>
-              <select id="position" name="position" value={form.position} onChange={handleChange} required>
-                <option value="" disabled>Select your position...</option>
-                <option value="primary">Teacher (Primary/Elementary)</option>
-                <option value="secondary">Teacher (Secondary/High School)</option>
-                <option value="hod">Head of Department/Subject Lead</option>
-                <option value="sen">SEN Coordinator/Learning Support Teacher</option>
-                <option value="admin">School Leader/Administrator (e.g., Headteacher, Deputy Head)</option>
-                <option value="trainee">Trainee Teacher/Early Career Teacher</option>
+              <label htmlFor="config">Assessment configuration</label>
+              <select
+                id="config"
+                name="config"
+                value={selectedConfigId}
+                onChange={(event) => setSelectedConfigId(event.target.value)}
+              >
+                <option value="">Choose a configuration...</option>
+                {allConfigs.map((config) => (
+                  <option key={config.id} value={config.id}>
+                    {config.name}
+                  </option>
+                ))}
               </select>
             </div>
-            <div className="assessment-field">
-              <label htmlFor="experience">Teaching Experience</label>
-              <select id="experience" name="experience" value={form.experience} onChange={handleChange} required>
-                <option value="" disabled>Select experience...</option>
-                <option value="new">New to teaching (0-2 years)</option>
-                <option value="developing">Developing teacher (3-7 years)</option>
-                <option value="experienced">Experienced teacher (8-15 years)</option>
-                <option value="seasoned">Seasoned educator (15+ years)</option>
-              </select>
-            </div>
-            <div className="assessment-field">
-              <label htmlFor="subject">Subject Area</label>
-              <select id="subject" name="subject" value={form.subject} onChange={handleChange} required>
-                <option value="" disabled>Select subject area...</option>
-                <option value="primary">Primary/Elementary Education (General)</option>
-                <option value="english">English/Literacy</option>
-                <option value="math">Mathematics/Numeracy</option>
-                <option value="science">Science</option>
-                <option value="humanities">Humanities (History, Geography, RE)</option>
-                <option value="arts">Arts & Design (Art, Music, Drama)</option>
-                <option value="pe">Physical Education</option>
-                <option value="ict">ICT/Computer Science</option>
-                <option value="vocational">Vocational Subjects</option>
-                <option value="sen">Special Educational Needs (SEN)</option>
-              </select>
-            </div>
-            <div className="assessment-field">
-              <label htmlFor="aiKnowledge">Current AI Knowledge</label>
-              <select id="aiKnowledge" name="aiKnowledge" value={form.aiKnowledge} onChange={handleChange} required>
-                <option value="" disabled>Select your current AI knowledge level...</option>
-                <option value="minimal">Minimal - Limited exposure to AI concepts</option>
-                <option value="basic">Basic - General awareness of AI applications</option>
-                <option value="intermediate">Intermediate - Some hands-on experience with AI tools</option>
-                <option value="advanced">Advanced - Regular use of AI in work/research</option>
-              </select>
-            </div>
-            <button
-              type="submit"
-              className="assessment-btn"
-              disabled={!isComplete}
-            >
-              Start AI Teacher Assessment
+
+            {selectedConfig ? (
+              <div className="assessment-welcome">
+                <h3 className="assessment-welcome-title">{selectedConfig.welcome.title}</h3>
+                <p className="assessment-welcome-para">{selectedConfig.welcome.description}</p>
+                <p className="assessment-welcome-para">
+                  Context questions: {selectedConfig.contextFields.length} &nbsp;•&nbsp; Assessment questions: {selectedConfig.questions.length}
+                </p>
+                <p className="assessment-welcome-para">
+                  You will receive a personalised analysis aligned to <strong>{selectedConfig.name}</strong> as soon as you complete the assessment.
+                </p>
+              </div>
+            ) : (
+              <div className="assessment-welcome">
+                <h3 className="assessment-welcome-title">Not sure where to begin?</h3>
+                <p className="assessment-welcome-para">
+                  If you are exploring whole-class practice, select <strong>AI Teacher readiness</strong>. Subject-specific or leadership assessments are available for science, humanities, and school strategy.
+                </p>
+              </div>
+            )}
+
+            <button type="submit" className="assessment-btn">
+              Load Assessment
             </button>
           </form>
         </div>

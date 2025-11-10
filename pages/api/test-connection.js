@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import { SUPABASE_TABLES } from '../../lib/supabaseTableConfig'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -16,29 +17,36 @@ export default async function handler(req, res) {
       })
     }
 
-    // Test 2: Try to list tables (should work even if tables don't exist)
-    console.log('Attempting to query Supabase...')
-    const { data, error } = await supabase
-      .from('assessments')
-      .select('count')
-      .limit(1)
+    const tableResults = []
 
-    if (error) {
-      console.error('Supabase query error:', error)
-      return res.status(500).json({ 
-        error: 'Database connection failed',
-        details: error.message,
-        code: error.code,
-        hint: error.hint,
-        test: 'query_test'
-      })
+    for (const table of SUPABASE_TABLES) {
+      console.log(`Attempting to query Supabase table: ${table}`)
+
+      const { error } = await supabase
+        .from(table)
+        .select('count')
+        .limit(1)
+
+      if (error) {
+        console.error(`Supabase query error for ${table}:`, error)
+        return res.status(500).json({ 
+          error: 'Database connection failed',
+          details: error.message,
+          code: error.code,
+          hint: error.hint,
+          table,
+          test: 'query_test'
+        })
+      }
+
+      tableResults.push(table)
     }
 
     return res.status(200).json({ 
       success: true,
       message: 'Supabase connection successful',
-      test: 'all_tests_passed',
-      data: data
+      tablesChecked: tableResults,
+      test: 'all_tests_passed'
     })
 
   } catch (error) {

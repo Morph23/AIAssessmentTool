@@ -1,4 +1,6 @@
 import { supabase } from '../../lib/supabase'
+import { DEFAULT_CONFIG_ID } from '../../lib/assessmentConfigs'
+import { SUPABASE_TABLE_CONFIG, SUPABASE_TABLES } from '../../lib/supabaseTableConfig'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -8,36 +10,48 @@ export default async function handler(req, res) {
   try {
     console.log('Testing Supabase connection and table...')
 
-    // Test 1: Check if we can connect to Supabase
-    const { data: testData, error: testError } = await supabase
-      .from('assessments')
-      .select('count')
-      .limit(1)
+    // Test 1: Ensure we can query each configured table
+    for (const table of SUPABASE_TABLES) {
+      const { error: tableError } = await supabase.from(table).select('count').limit(1)
 
-    if (testError) {
-      console.error('Supabase connection/table error:', testError)
+      if (tableError) {
+        console.error(`Supabase table query error for ${table}:`, tableError)
+        return res.status(500).json({
+          error: 'Database connection or table issue',
+          details: tableError.message,
+          code: tableError.code,
+          hint: tableError.hint,
+          table
+        })
+      }
+    }
+
+    // Test 2: Insert a lightweight record into the default config table
+    const defaultTable = SUPABASE_TABLE_CONFIG[DEFAULT_CONFIG_ID]?.table
+
+    if (!defaultTable) {
       return res.status(500).json({
-        error: 'Database connection or table issue',
-        details: testError.message,
-        code: testError.code,
-        hint: testError.hint,
-        suggestion: 'Make sure you have created the assessments table in Supabase using the SQL from SUPABASE_SETUP.md'
+        error: 'Default table configuration missing',
+        configId: DEFAULT_CONFIG_ID
       })
     }
 
-    // Test 2: Try to insert a test record
     const testRecord = {
-      position: 'test',
-      experience: 'test',
-      subject: 'test',
-      ai_knowledge: 'test',
-      answers: [1, 2, 3],
-      result_percentage: 50,
+      config_id: DEFAULT_CONFIG_ID,
+      context: {},
+      answers: [],
+      numeric_scores: [],
+      detailed_answers: [],
+      result_percentage: 0,
+      total_score: 0,
+      max_possible_score: 0,
+      interpretation_label: 'test',
+      interpretation_description: 'test',
       created_at: new Date().toISOString()
     }
 
     const { data: insertData, error: insertError } = await supabase
-      .from('assessments')
+      .from(defaultTable)
       .insert([testRecord])
       .select()
 
@@ -47,22 +61,20 @@ export default async function handler(req, res) {
         error: 'Insert test failed',
         details: insertError.message,
         code: insertError.code,
-        hint: insertError.hint
+        hint: insertError.hint,
+        table: defaultTable
       })
     }
 
-    // Clean up test record
     if (insertData && insertData[0]?.id) {
-      await supabase
-        .from('assessments')
-        .delete()
-        .eq('id', insertData[0].id)
+      await supabase.from(defaultTable).delete().eq('id', insertData[0].id)
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Supabase connection and table working correctly',
-      test_record_id: insertData[0]?.id
+      message: 'Supabase connection and schema verified',
+      tablesChecked: SUPABASE_TABLES,
+      testTable: defaultTable
     })
 
   } catch (error) {
